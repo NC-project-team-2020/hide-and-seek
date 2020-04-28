@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'pages/HomePage.dart';
 import 'pages/Register.dart';
 import 'pages/LobbyPage.dart';
+import 'pages/Lobby.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
@@ -39,6 +40,7 @@ class _MyAppState extends State<MyApp> {
               '/': (context) => LobbyPage(),
               '/login': (context) => HomePage(),
               '/register': (context) => Register(),
+              '/lobby-room': (context) => Lobby()
             },
           );
         }

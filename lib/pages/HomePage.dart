@@ -19,7 +19,13 @@ class _HomePageState extends State<HomePage> {
 
   validateAndSave() async {
     if (_formKey.currentState.validate()) {
-      if (_username == 'test' && _password == 'hello123') {
+      // String url = 'https://peekaboo-be.herokuapp.com/api/users/login';
+      // var response = await http
+      //     .post(url, body: {"user_name": "hannes", "password": "test"});
+      // var body = convert.jsonDecode(response.body);
+      // print(body);
+
+      if (1 == 1) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
 
         prefs?.setBool('isLoggedIn', true);
@@ -29,12 +35,6 @@ class _HomePageState extends State<HomePage> {
           ModalRoute.withName("/"),
         );
       } else {}
-      // String url = 'https://hannes-be-nc-news.herokuapp.com/api/articles';
-      // var response = await http.get(url);
-      // if (response.statusCode == 200) {
-      //   var jsonBody = convert.jsonDecode(response.body);
-      //   print(jsonBody);
-      // }
     }
   }
 
