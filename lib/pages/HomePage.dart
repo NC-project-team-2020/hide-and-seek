@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hideandseek/pages/LobbyPage.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -18,7 +20,14 @@ class _HomePageState extends State<HomePage> {
   validateAndSave() async {
     if (_formKey.currentState.validate()) {
       if (_username == 'test' && _password == 'hello123') {
-        _formKey.currentState.save();
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+
+        prefs?.setBool('isLoggedIn', true);
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (BuildContext context) => LobbyPage()),
+          ModalRoute.withName("/"),
+        );
       } else {}
       // String url = 'https://hannes-be-nc-news.herokuapp.com/api/articles';
       // var response = await http.get(url);
