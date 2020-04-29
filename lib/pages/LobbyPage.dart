@@ -19,6 +19,66 @@ class LobbyPage extends StatelessWidget {
       }
     }
 
+    createRoomDialog(BuildContext context) {
+      TextEditingController customController = TextEditingController();
+
+      return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Name for your room'),
+            content: TextField(
+              controller: customController,
+            ),
+            actions: <Widget>[
+              MaterialButton(
+                  elevation: 5.0,
+                  child: Text('Close'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  }),
+              MaterialButton(
+                  elevation: 5.0,
+                  child: Text('Create Room'),
+                  onPressed: () {
+                    Navigator.of(context).pop(customController.text.toString());
+                  })
+            ],
+          );
+        },
+      );
+    }
+
+    joinRoomDialog(BuildContext context) {
+      TextEditingController customController = TextEditingController();
+
+      return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Room ID'),
+            content: TextField(
+              controller: customController,
+            ),
+            actions: <Widget>[
+              MaterialButton(
+                  elevation: 5.0,
+                  child: Text('Close'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  }),
+              MaterialButton(
+                  elevation: 5.0,
+                  child: Text('Join Room'),
+                  onPressed: () {
+                    Navigator.of(context).pop(customController.text.toString());
+                  }),
+            ],
+          );
+        },
+      );
+    }
+
     return Scaffold(
       appBar: new AppBar(
         title: Text('Lobby'),
@@ -46,19 +106,42 @@ class LobbyPage extends StatelessWidget {
             children: <Widget>[
               RaisedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/lobby-room');
+                  createRoomDialog(context).then((roomName) {
+                    if (roomName.toString().length > 0 && roomName != null) {
+                      //Logic for creating room goes here
+                      print(roomName);
+                    }
+                  });
                 },
                 child: Text('Create Room'),
               ),
               RaisedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/register');
+                  joinRoomDialog(context).then((roomID) {
+                    if (roomID.toString().length > 0 && roomID != null) {
+                      //Logic for joining room goes here
+                      print(roomID);
+                      Navigator.pushNamed(context, '/lobby-room');
+                    }
+                  });
                 },
                 child: Text('Join Room'),
               ),
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            title: Text('Lobby'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            title: Text('User Profile'),
+          )
+        ],
       ),
     );
   }
