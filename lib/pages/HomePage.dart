@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hideandseek/pages/LobbyPage.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
+import '../requests.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,35 +13,57 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  String _username;
-  String _password;
+  final TextEditingController _username = TextEditingController();
+  final TextEditingController _password = TextEditingController();
 
   validateAndSave() async {
     if (_formKey.currentState.validate()) {
-      // String url = 'https://peekaboo-be.herokuapp.com/api/users/login';
-      // var response = await http
-      //     .post(url, body: {"user_name": "hannes", "password": "test"});
-      // var body = convert.jsonDecode(response.body);
-      // print(body);
-
-      if (1 == 1) {
+      String body = convert.jsonEncode(<String, String>{
+        'user_name': _username.text,
+        'password': _password.text
+      });
+      http.Response response = await validateLogin(body);
+      if (response.statusCode == 200) {
+        final Map body = convert.jsonDecode(response.body);
+        final Map user = body['user'];
         SharedPreferences prefs = await SharedPreferences.getInstance();
 
         prefs?.setBool('isLoggedIn', true);
+        prefs.setString('token', user['token']);
+        prefs.setString('user_id', user['id']);
+        prefs.setString('user_name', user['user_name']);
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (BuildContext context) => LobbyPage()),
           ModalRoute.withName("/"),
         );
-      } else {}
+      } else {
+        final failedSnackBar = SnackBar(
+          backgroundColor: Colors.red[500],
+          content: Text(
+            'Invalid login',
+          ),
+        );
+        _scaffoldKey.currentState.showSnackBar(failedSnackBar);
+      }
     }
   }
 
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
+  void dispose() {
+    // Clean up the controller when the widget is removed from the
+    // widget tree.
+    _username.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
   Widget build(BuildContext context) {
     return new Scaffold(
+      key: _scaffoldKey,
       appBar: new AppBar(
         title: Text('Peekaboo'),
       ),
@@ -55,12 +78,7 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   children: <Widget>[
                     TextFormField(
-                      initialValue: _username,
-                      onChanged: (text) {
-                        setState(() {
-                          _username = text;
-                        });
-                      },
+                      controller: _username,
                       decoration: const InputDecoration(
                         labelText: 'Username',
                         border: OutlineInputBorder(),
@@ -73,12 +91,7 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                     TextFormField(
-                      initialValue: _password,
-                      onChanged: (text) {
-                        setState(() {
-                          _password = text;
-                        });
-                      },
+                      controller: _password,
                       obscureText: true,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
@@ -88,7 +101,9 @@ class _HomePageState extends State<HomePage> {
                           value.isEmpty ? 'The field can\'t be empty' : null,
                     ),
                     RaisedButton(
-                      onPressed: validateAndSave,
+                      onPressed: () {
+                        validateAndSave();
+                      },
                       child: Text('Login'),
                     ),
                   ],
