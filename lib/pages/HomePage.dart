@@ -18,13 +18,15 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _username = TextEditingController();
   final TextEditingController _password = TextEditingController();
 
+  userCreated() {}
+
   validateAndSave() async {
     if (_formKey.currentState.validate()) {
       String body = convert.jsonEncode(<String, String>{
         'user_name': _username.text,
         'password': _password.text
       });
-      http.Response response = await validateLogin(body);
+      http.Response response = await userReq('login', body);
       if (response.statusCode == 200) {
         final Map body = convert.jsonDecode(response.body);
         final Map user = body['user'];
@@ -90,6 +92,7 @@ class _HomePageState extends State<HomePage> {
                         return null;
                       },
                     ),
+                    SizedBox(height: 25.0),
                     TextFormField(
                       controller: _password,
                       obscureText: true,
