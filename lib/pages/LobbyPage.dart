@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hideandseek/pages/HomePage.dart';
+import 'package:hideandseek/pages/inGame.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LobbyPage extends StatelessWidget {
@@ -14,8 +15,12 @@ class LobbyPage extends StatelessWidget {
           MaterialPageRoute(builder: (BuildContext context) => HomePage()),
           ModalRoute.withName("/register"),
         );
-      } else if (value == 'Settings') {
-        print('Settings');
+      } else if (value == 'Map') {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (BuildContext context) => InGame()),
+          ModalRoute.withName("/in-game"),
+        );
       }
     }
 
@@ -87,7 +92,7 @@ class LobbyPage extends StatelessWidget {
           PopupMenuButton<String>(
             onSelected: handleClick,
             itemBuilder: (BuildContext context) {
-              return {'Logout', 'Settings'}.map((String choice) {
+              return {'Logout', 'Map'}.map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
                   child: Text(choice),

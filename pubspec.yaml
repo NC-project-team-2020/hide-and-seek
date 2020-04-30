@@ -17,6 +17,8 @@ environment:
   sdk: '>=2.1.0 <3.0.0'
 
 dependencies:
+  google_maps_flutter: ^0.5.21+8
+  location: ^2.3.5
   shared_preferences: ^0.5.7
   http: ^0.12.0+4
   flutter:

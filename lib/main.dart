@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hideandseek/pages/inGame.dart';
 import 'pages/HomePage.dart';
 import 'pages/Register.dart';
 import 'pages/LobbyPage.dart';
@@ -40,7 +41,8 @@ class _MyAppState extends State<MyApp> {
               '/': (context) => LobbyPage(),
               '/login': (context) => HomePage(),
               '/register': (context) => Register(),
-              '/lobby-room': (context) => Lobby()
+              '/lobby-room': (context) => Lobby(),
+              '/in-game': (context) => InGame()
             },
           );
         }
