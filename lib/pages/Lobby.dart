@@ -13,10 +13,12 @@ class Lobby extends StatefulWidget {
 class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   var _players = ['player 1', 'player 2', 'player 3', 'player 4'];
 
-  int _start = 10;
-  int _current = 10;
-  //Need a way to get input from user to set time....
+  int _start;
+  int _current;
+  int _gameTime;
+  String _gameTimeText;
   String elapsedTime = '';
+  String selectedHider;
   bool startStop = false;
 
   void startTimer() {
@@ -35,7 +37,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     });
 
     sub.onDone(() {
-//LAUNCH THE GAME
+      //LAUNCH THE GAME
       sub.cancel();
       Navigator.push(
         context,
@@ -47,6 +49,8 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    print(selectedHider);
+
     return new Scaffold(
       appBar: new AppBar(
         title: Text('Lobby'),
@@ -68,8 +72,26 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Text(elapsedTime,
-              style: TextStyle(fontSize: 25.0), textAlign: TextAlign.center),
+          _gameTimeText == null
+              ? Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Set the seek time',
+                    style: TextStyle(fontSize: 25.0),
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Seek Time: $_gameTimeText',
+                      style: TextStyle(fontSize: 25.0),
+                      textAlign: TextAlign.center),
+                ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text('Time left to hide: $elapsedTime',
+                style: TextStyle(fontSize: 25.0), textAlign: TextAlign.center),
+          ),
           SizedBox(
             width: 150,
             height: 300,
@@ -77,18 +99,23 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                 itemCount: _players.length,
                 itemBuilder: (context, index) {
                   final player = _players[index];
-                  return ListTile(
-                      title: Text(
-                        player,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 30.0,
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ListTile(
+                        title: Text(
+                          player == selectedHider
+                              ? "$player is the hider"
+                              : player,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 30.0,
+                          ),
                         ),
-                      ),
-                      onTap: () {
-                        _showcontent(context);
-                      });
+                        onTap: () {
+                          _showcontent(context);
+                        }),
+                  );
                 }),
           ),
           SizedBox(
@@ -106,6 +133,23 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            title: Text('Room'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            title: Text('Game Settings'),
+          )
+        ],
+        onTap: (value) {
+          if (value == 1) {
+            gameSettings(context);
+          }
+        },
       ),
     );
   }
@@ -129,6 +173,79 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     } else if (value == 'Settings') {
       print('Settings');
     }
+  }
+
+  gameSettings(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Set number of minutes for hunt and seek time'),
+          content: settingsSelect(),
+        );
+      },
+    );
+  }
+
+  settingsSelect() {
+    TextEditingController _c = new TextEditingController();
+    TextEditingController _g = new TextEditingController();
+    return Container(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          TextField(
+            keyboardType: TextInputType.number,
+            controller: _c,
+            decoration: new InputDecoration(labelText: 'Hunt Time'),
+          ),
+          TextField(
+            keyboardType: TextInputType.number,
+            controller: _g,
+            decoration: new InputDecoration(labelText: 'Seek Time'),
+          ),
+          DropdownButton(
+            hint: Text('Choose who will hide'),
+            onChanged: (String val) {
+              setState(() {
+                selectedHider = val;
+              });
+            },
+            value: this.selectedHider,
+            items: _players.map((String value) {
+              return new DropdownMenuItem<String>(
+                value: value,
+                child: new Text(value),
+              );
+            }).toList(),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              MaterialButton(
+                  elevation: 5.0,
+                  child: Text('Close'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  }),
+              MaterialButton(
+                  elevation: 5.0,
+                  child: Text('Set'),
+                  onPressed: () {
+                    setState(() {
+                      this._start = int.parse(_c.text) * 60;
+                      this._current = int.parse(_c.text) * 60;
+                      this._gameTime = int.parse(_g.text) * 60;
+                      this._gameTimeText =
+                          transformSeconds(int.parse(_g.text) * 60);
+                    });
+                    Navigator.of(context).pop();
+                  }),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   void _showcontent(BuildContext context) {
