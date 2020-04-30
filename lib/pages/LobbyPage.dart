@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hideandseek/pages/HomePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import './components/LoobyPage.components.dart';
 
 class LobbyPage extends StatelessWidget {
   @override
@@ -17,66 +18,6 @@ class LobbyPage extends StatelessWidget {
       } else if (value == 'Settings') {
         print('Settings');
       }
-    }
-
-    createRoomDialog(BuildContext context) {
-      TextEditingController customController = TextEditingController();
-
-      return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Name for your room'),
-            content: TextField(
-              controller: customController,
-            ),
-            actions: <Widget>[
-              MaterialButton(
-                  elevation: 5.0,
-                  child: Text('Close'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  }),
-              MaterialButton(
-                  elevation: 5.0,
-                  child: Text('Create Room'),
-                  onPressed: () {
-                    Navigator.of(context).pop(customController.text.toString());
-                  })
-            ],
-          );
-        },
-      );
-    }
-
-    joinRoomDialog(BuildContext context) {
-      TextEditingController customController = TextEditingController();
-
-      return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Room ID'),
-            content: TextField(
-              controller: customController,
-            ),
-            actions: <Widget>[
-              MaterialButton(
-                  elevation: 5.0,
-                  child: Text('Close'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  }),
-              MaterialButton(
-                  elevation: 5.0,
-                  child: Text('Join Room'),
-                  onPressed: () {
-                    Navigator.of(context).pop(customController.text.toString());
-                  }),
-            ],
-          );
-        },
-      );
     }
 
     return Scaffold(
@@ -132,6 +73,15 @@ class LobbyPage extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        onTap: (value) {
+          if (value == 1) {
+            Navigator.of(context).push(new MaterialPageRoute<Null>(
+                builder: (BuildContext context) {
+                  return userProfile();
+                },
+                fullscreenDialog: true));
+          }
+        },
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
