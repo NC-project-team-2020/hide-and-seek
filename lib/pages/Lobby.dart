@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:quiver/async.dart';
 import 'package:hideandseek/pages/HomePage.dart';
 import 'package:hideandseek/pages/LobbyPage.dart';
+import './components/Lobby.components.dart';
 
 class Lobby extends StatefulWidget {
   const Lobby({Key key}) : super(key: key);
@@ -16,6 +17,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   int _start;
   int _current;
   int _gameTime;
+  int _gameRadius;
   String _gameTimeText;
   String elapsedTime = '';
   String selectedHider;
@@ -31,11 +33,11 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     sub.onData((duration) {
       setState(() {
         _current = _start - duration.elapsed.inSeconds;
-        elapsedTime = transformSeconds(_current);
+        var transformSeconds2 = LobbyFunc.transformSeconds(_current);
+        elapsedTime = transformSeconds2;
         startStop = true;
       });
     });
-
     sub.onDone(() {
       //LAUNCH THE GAME
       sub.cancel();
@@ -49,8 +51,6 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    print(selectedHider);
-
     return new Scaffold(
       appBar: new AppBar(
         title: Text('Lobby'),
@@ -113,7 +113,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                           ),
                         ),
                         onTap: () {
-                          _showcontent(context);
+                          showContent(context);
                         }),
                   );
                 }),
@@ -154,27 +154,6 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     );
   }
 
-  transformSeconds(int seconds) {
-    int minutes = (seconds / 60).truncate();
-
-    String minutesStr = (minutes % 60).toString().padLeft(2, '0');
-    String secondsStr = (seconds % 60).toString().padLeft(2, '0');
-
-    return "$minutesStr:$secondsStr";
-  }
-
-  void handleClick(String value) async {
-    if (value == 'Leave lobby') {
-      print('leaving the lobby');
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (BuildContext context) => LobbyPage()),
-          ModalRoute.withName("/LobbyPage"));
-    } else if (value == 'Settings') {
-      print('Settings');
-    }
-  }
-
   gameSettings(BuildContext context) {
     return showDialog(
       context: context,
@@ -190,6 +169,8 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   settingsSelect() {
     TextEditingController _c = new TextEditingController();
     TextEditingController _g = new TextEditingController();
+    TextEditingController _r = new TextEditingController();
+
     return Container(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -203,6 +184,11 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
             keyboardType: TextInputType.number,
             controller: _g,
             decoration: new InputDecoration(labelText: 'Seek Time'),
+          ),
+          TextField(
+            keyboardType: TextInputType.number,
+            controller: _r,
+            decoration: new InputDecoration(labelText: 'Area Radius'),
           ),
           DropdownButton(
             hint: Text('Choose who will hide'),
@@ -236,8 +222,9 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                       this._start = int.parse(_c.text) * 60;
                       this._current = int.parse(_c.text) * 60;
                       this._gameTime = int.parse(_g.text) * 60;
+                      this._gameRadius = int.parse(_r.text);
                       this._gameTimeText =
-                          transformSeconds(int.parse(_g.text) * 60);
+                          LobbyFunc.transformSeconds(int.parse(_g.text) * 60);
                     });
                     Navigator.of(context).pop();
                   }),
@@ -248,32 +235,12 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     );
   }
 
-  void _showcontent(BuildContext context) {
-    showDialog<Null>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return new AlertDialog(
-          title: new Text('USER PROFILE NAME'),
-          content: new SingleChildScrollView(
-            child: new ListBody(
-              children: <Widget>[
-                new Text('AVATAR : X - show image'),
-                new Text('Wins : X '),
-                new Text('Loses : X'),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            new FlatButton(
-              child: new Text('Close'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+  handleClick(String value) {
+    if (value == 'Leave lobby') {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => LobbyPage()));
+    } else if (value == 'Settings') {
+      print('Settings');
+    }
   }
 }
