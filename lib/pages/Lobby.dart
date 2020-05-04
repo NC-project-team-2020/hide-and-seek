@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:quiver/async.dart';
 import 'package:hideandseek/pages/HomePage.dart';
 import 'package:hideandseek/pages/LobbyPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_socket_io/flutter_socket_io.dart';
+import 'package:flutter_socket_io/socket_io_manager.dart';
+
+import 'dart:convert' as convert;
 
 class Lobby extends StatefulWidget {
   const Lobby({Key key}) : super(key: key);
@@ -11,8 +16,7 @@ class Lobby extends StatefulWidget {
 }
 
 class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
-  var _players = ['player 1', 'player 2', 'player 3', 'player 4'];
-
+  var _players;
   int _start;
   int _current;
   int _gameTime;
@@ -20,6 +24,24 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   String elapsedTime = '';
   String selectedHider;
   bool startStop = false;
+  String userName;
+  String userID;
+  String roomPass;
+  String usersArr;
+  SocketIO socketIO;
+
+  Future<void> getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userName = prefs.getString("user_name");
+    userID = prefs.getString("user_id");
+    roomPass = prefs.getString("roomPass");
+    usersArr = prefs.getString("users");
+    _players = convert.jsonDecode(usersArr);
+  }
+
+  _handleUpdate(dynamic data) async {
+    print("Socket info: " + data);
+  }
 
   void startTimer() {
     CountdownTimer countDownTimer = new CountdownTimer(
@@ -49,109 +71,122 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    print(selectedHider);
+    socketIO = ModalRoute.of(context).settings.arguments;
+    socketIO.subscribe("usersUpdate", _handleUpdate);
 
-    return new Scaffold(
-      appBar: new AppBar(
-        title: Text('Lobby'),
-        actions: <Widget>[
-          PopupMenuButton<String>(
-            onSelected: handleClick,
-            itemBuilder: (BuildContext context) {
-              return {'Leave lobby', 'Settings'}.map((String choice) {
-                return PopupMenuItem<String>(
-                  value: choice,
-                  child: Text(choice),
-                );
-              }).toList();
-            },
-          ),
-        ],
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          _gameTimeText == null
-              ? Padding(
+    return FutureBuilder(
+        future: getSharedPrefs(),
+        builder: (context, snapshot) {
+          return new Scaffold(
+            appBar: new AppBar(
+              title: Text('Lobby'),
+              actions: <Widget>[
+                PopupMenuButton<String>(
+                  onSelected: handleClick,
+                  itemBuilder: (BuildContext context) {
+                    return {'Leave lobby', 'Settings'}.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                      );
+                    }).toList();
+                  },
+                ),
+              ],
+            ),
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'Set the seek time',
-                    style: TextStyle(fontSize: 25.0),
-                    textAlign: TextAlign.center,
-                  ),
-                )
-              : Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text('Seek Time: $_gameTimeText',
+                  child: Text('Room Password: $roomPass',
                       style: TextStyle(fontSize: 25.0),
                       textAlign: TextAlign.center),
                 ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text('Time left to hide: $elapsedTime',
-                style: TextStyle(fontSize: 25.0), textAlign: TextAlign.center),
-          ),
-          SizedBox(
-            width: 150,
-            height: 300,
-            child: ListView.builder(
-                itemCount: _players.length,
-                itemBuilder: (context, index) {
-                  final player = _players[index];
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ListTile(
-                        title: Text(
-                          player == selectedHider
-                              ? "$player is the hider"
-                              : player,
+                _gameTimeText == null
+                    ? Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          'Set the seek time',
+                          style: TextStyle(fontSize: 25.0),
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 30.0,
-                          ),
                         ),
-                        onTap: () {
-                          _showcontent(context);
-                        }),
-                  );
-                }),
-          ),
-          SizedBox(
-            height: 80.0,
-            child: RaisedButton(
-              onPressed: () => startStop ? null : startTimer(),
-              child: Text(
-                "Go Hide",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 30.0,
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text('Seek Time: $_gameTimeText',
+                            style: TextStyle(fontSize: 25.0),
+                            textAlign: TextAlign.center),
+                      ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Time left to hide: $elapsedTime',
+                      style: TextStyle(fontSize: 25.0),
+                      textAlign: TextAlign.center),
                 ),
-              ),
+                SizedBox(
+                  width: 150,
+                  height: 300,
+                  child: ListView.builder(
+                      itemCount: _players.length,
+                      itemBuilder: (context, index) {
+                        final playerIndex = _players[index];
+                        final userName = playerIndex['user_name'];
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListTile(
+                              title: Text(
+                                playerIndex == selectedHider
+                                    ? "$userName is the hider"
+                                    : userName,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 30.0,
+                                ),
+                              ),
+                              onTap: () {
+                                _showcontent(context);
+                              }),
+                        );
+                      }),
+                ),
+                SizedBox(
+                  height: 80.0,
+                  child: RaisedButton(
+                    onPressed: () => startStop ? null : startTimer(),
+                    child: Text(
+                      "Go Hide",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 30.0,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            title: Text('Room'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            title: Text('Game Settings'),
-          )
-        ],
-        onTap: (value) {
-          if (value == 1) {
-            gameSettings(context);
-          }
-        },
-      ),
-    );
+            bottomNavigationBar: BottomNavigationBar(
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  title: Text('Room'),
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.settings),
+                  title: Text('Game Settings'),
+                )
+              ],
+              onTap: (value) {
+                if (value == 1) {
+                  gameSettings(context);
+                }
+              },
+            ),
+          );
+        });
   }
 
   transformSeconds(int seconds) {
@@ -166,6 +201,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   void handleClick(String value) async {
     if (value == 'Leave lobby') {
       print('leaving the lobby');
+      socketIO.sendMessage("leaveRoom", null);
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (BuildContext context) => LobbyPage()),
@@ -212,10 +248,13 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
               });
             },
             value: this.selectedHider,
-            items: _players.map((String value) {
+            items: _players.map<DropdownMenuItem<String>>((value) {
+              final playerName = value["user_name"];
+              print(value);
+              print(playerName);
               return new DropdownMenuItem<String>(
-                value: value,
-                child: new Text(value),
+                value: playerName,
+                child: new Text(playerName),
               );
             }).toList(),
           ),
@@ -277,3 +316,5 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     );
   }
 }
+
+//  )}

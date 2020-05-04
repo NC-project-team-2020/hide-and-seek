@@ -3,8 +3,56 @@ import 'package:hideandseek/pages/HomePage.dart';
 import 'package:hideandseek/pages/inGame.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import './components/LoobyPage.components.dart';
+import 'package:flutter_socket_io/flutter_socket_io.dart';
+import 'package:flutter_socket_io/socket_io_manager.dart';
+import 'dart:convert' as convert;
 
-class LobbyPage extends StatelessWidget {
+class LobbyPage extends StatefulWidget {
+  const LobbyPage({Key key}) : super(key: key);
+
+  @override
+  _LobbyPageState createState() => _LobbyPageState();
+}
+
+class _LobbyPageState extends State<LobbyPage> {
+  SocketIO socketIO;
+  String userName;
+  String userID;
+
+  Future<Null> getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userName = prefs.getString("user_name");
+    userID = prefs.getString("user_id");
+  }
+
+  @override
+  void initState() {
+    //Creating the socket
+    socketIO = SocketIOManager().createSocketIO(
+      'https://peekaboo-be.herokuapp.com/',
+      '/',
+    );
+    //Call init before doing anything with socket
+    socketIO.init();
+    socketIO.subscribe("createRoom", _handleRoom);
+    socketIO.subscribe("joinRoom", _handleRoom);
+
+    //Connect to the socket
+    socketIO.connect();
+    getSharedPrefs();
+    super.initState();
+  }
+
+  _handleRoom(dynamic data) async {
+    print("Socket info: " + data);
+    print(socketIO);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final Map body = convert.jsonDecode(data);
+    prefs.setString('roomPass', body["roomPassword"]);
+    prefs.setString('users', convert.jsonEncode(body["users"]));
+    Navigator.pushNamed(context, '/lobby-room', arguments: socketIO);
+  }
+
   @override
   Widget build(BuildContext context) {
     void handleClick(String value) async {
@@ -54,7 +102,9 @@ class LobbyPage extends StatelessWidget {
                 onPressed: () {
                   createRoomDialog(context).then((roomName) {
                     if (roomName.toString().length > 0 && roomName != null) {
-                      //Logic for creating room goes here
+                      String jsonData =
+                          '{"user_name":"$userName","user_id":"$userID", "room":"$roomName"}';
+                      socketIO.sendMessage("createRoom", jsonData);
                       print(roomName);
                     }
                   });
@@ -65,9 +115,10 @@ class LobbyPage extends StatelessWidget {
                 onPressed: () {
                   joinRoomDialog(context).then((roomID) {
                     if (roomID.toString().length > 0 && roomID != null) {
-                      //Logic for joining room goes here
                       print(roomID);
-                      Navigator.pushNamed(context, '/lobby-room');
+                      String jsonData =
+                          '{"user_name":"$userName","user_id":"$userID", "roomPass":"$roomID"}';
+                      socketIO.sendMessage("joinRoom", jsonData);
                     }
                   });
                 },
