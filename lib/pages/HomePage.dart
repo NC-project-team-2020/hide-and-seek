@@ -105,21 +105,30 @@ class _HomePageState extends State<HomePage> {
                       validator: (value) =>
                           value.isEmpty ? 'The field can\'t be empty' : null,
                     ),
-                    RaisedButton(
-                      onPressed: () {
-                        validateAndSave();
-                      },
-                      child: Text('Login'),
+                    SizedBox(height: 15.0),
+                    SizedBox(
+                      width: double.infinity,
+                      child: RaisedButton(
+                        color: Colors.blue,
+                        onPressed: () {
+                          validateAndSave();
+                        },
+                        child: Text('Login'),
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
-            RaisedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/register');
-              },
-              child: Text('Register Here'),
+            SizedBox(height: 10.0),
+            SizedBox(
+              width: double.infinity,
+              child: RaisedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/register');
+                },
+                child: Text('Register Here'),
+              ),
             ),
           ],
         ),

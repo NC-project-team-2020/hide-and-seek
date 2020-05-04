@@ -153,9 +153,12 @@ class _RegisterState extends State<Register> {
                 : null,
           ),
           SizedBox(height: 25.0),
-          RaisedButton(
-            onPressed: validateAndSave,
-            child: Text('Register now'),
+          SizedBox(
+            width: double.infinity,
+            child: RaisedButton(
+              onPressed: validateAndSave,
+              child: Text('Register now'),
+            ),
           ),
         ],
       ),
