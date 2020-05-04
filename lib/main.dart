@@ -5,6 +5,7 @@ import 'pages/Register.dart';
 import 'pages/LobbyPage.dart';
 import 'pages/Lobby.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 
 void main() async {
   runApp(MyApp());
@@ -28,6 +29,11 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  void initState() {
+    super.initState();
+    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -42,7 +48,7 @@ class _MyAppState extends State<MyApp> {
               '/login': (context) => HomePage(),
               '/register': (context) => Register(),
               '/lobby-room': (context) => Lobby(),
-              '/in-game': (context) => InGame()
+              '/in-game': (context) => MapPage()
             },
           );
         }

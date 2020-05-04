@@ -67,7 +67,7 @@ class _LobbyPageState extends State<LobbyPage> {
       } else if (value == 'Map') {
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (BuildContext context) => InGame()),
+          MaterialPageRoute(builder: (BuildContext context) => MapPage()),
           ModalRoute.withName("/in-game"),
         );
       }
