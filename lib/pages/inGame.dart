@@ -3,7 +3,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:hideandseek/pages/components/chat/chat.component.dart';
 import 'package:location/location.dart';
+import 'package:badges/badges.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:ui' as ui;
 import './LobbyPage.dart';
@@ -79,7 +81,6 @@ class _MapPageState extends State<MapPage> {
       Uint8List seekerImage =
           await getBytesFromAsset('assets/seeker_marker.png', 100);
       var location = await _locationTracker.getLocation();
-      print(hiderImage);
       updateMarkerAndCircle(location, hiderImage, seekerImage);
 
       if (_locationSubscription != null) {
@@ -147,26 +148,35 @@ class _MapPageState extends State<MapPage> {
               controller.setMapStyle(_mapStyle);
             },
           ),
-          Positioned(
-            top: 10,
-            left: 15,
-            child: Text(
-              '05:39',
-              style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold),
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Text(
+                '05:39',
+                style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: FloatingActionButton(
+                heroTag: 'getLocation',
+                child: Icon(Icons.location_on),
+                backgroundColor:
+                    followWithCamera ? Colors.blue : Colors.blue.withAlpha(30),
+                onPressed: () {
+                  getCurrentLocation();
+                  setState(() {
+                    followWithCamera = !followWithCamera;
+                  });
+                },
+              ),
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.location_on),
-        backgroundColor:
-            followWithCamera ? Colors.blue : Colors.blue.withAlpha(30),
-        onPressed: () {
-          getCurrentLocation();
-          setState(() {
-            followWithCamera = !followWithCamera;
-          });
-        },
       ),
       bottomNavigationBar: BottomNavigationBar(
         onTap: (value) {
@@ -176,24 +186,46 @@ class _MapPageState extends State<MapPage> {
               MaterialPageRoute(builder: (BuildContext context) => LobbyPage()),
               ModalRoute.withName("/"),
             );
-          } else if (value == 1) {
+          } else if (value == 2) {
             _drawerKey.currentState.openEndDrawer();
           }
         },
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             title: Text('Lobby'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
+            icon: Badge(
+              showBadge: true,
+              badgeContent: Text(
+                '3',
+                style: TextStyle(color: Colors.white),
+              ),
+              child: Icon(Icons.search),
+            ),
+            title: Text(
+              'Clues',
+            ),
+          ),
+          BottomNavigationBarItem(
+            icon: Badge(
+              showBadge: true,
+              badgeContent: Text(
+                '1',
+                style: TextStyle(color: Colors.white),
+              ),
+              child: Icon(
+                Icons.chat,
+              ),
+            ),
             title: Text('Chat'),
           )
         ],
       ),
       drawerEdgeDragWidth: 0,
       endDrawer: Drawer(
-        child: Text('Chat Here'),
+        child: Chat(),
       ),
     );
   }
