@@ -36,6 +36,8 @@ class _HomePageState extends State<HomePage> {
         prefs.setString('token', user['token']);
         prefs.setString('user_id', user['id']);
         prefs.setString('user_name', user['user_name']);
+        prefs.setString('first_name', user['first_name']);
+        prefs.setString('last_name', user['last_name']);
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (BuildContext context) => LobbyPage()),
@@ -103,21 +105,30 @@ class _HomePageState extends State<HomePage> {
                       validator: (value) =>
                           value.isEmpty ? 'The field can\'t be empty' : null,
                     ),
-                    RaisedButton(
-                      onPressed: () {
-                        validateAndSave();
-                      },
-                      child: Text('Login'),
+                    SizedBox(height: 15.0),
+                    SizedBox(
+                      width: double.infinity,
+                      child: RaisedButton(
+                        color: Colors.blue,
+                        onPressed: () {
+                          validateAndSave();
+                        },
+                        child: Text('Login'),
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
-            RaisedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/register');
-              },
-              child: Text('Register Here'),
+            SizedBox(height: 10.0),
+            SizedBox(
+              width: double.infinity,
+              child: RaisedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/register');
+                },
+                child: Text('Register Here'),
+              ),
             ),
           ],
         ),

@@ -18,6 +18,9 @@ environment:
 
 dependencies:
   google_maps_flutter: ^0.5.21+8
+  flutter_socket_io: ^0.6.0
+  badges: ^1.1.1
+  geolocator: ^5.3.1
   location: ^2.3.5
   image_picker: ^0.6.5+3
   shared_preferences: ^0.5.7
@@ -38,6 +41,10 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
+  assets:
+    - assets/map_style.txt
+    - assets/hider_marker.png
+    - assets/seeker_marker.png
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
