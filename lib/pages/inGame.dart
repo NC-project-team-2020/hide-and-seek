@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hideandseek/pages/components/chat/chat.component.dart';
+import 'package:hideandseek/pages/components/clues/Clues.component.dart';
 import 'package:location/location.dart';
 import 'package:badges/badges.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -27,6 +28,9 @@ class _MapPageState extends State<MapPage> {
   Circle circle;
   GoogleMapController _controller;
   bool followWithCamera = true;
+
+  //GameData
+  LatLng hidingPoint;
 
   static final CameraPosition initialLocation = CameraPosition(
     target: LatLng(55.3780518, -3.4359729),
@@ -74,6 +78,13 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+  Future<void> setHidingPoint() async {
+    LocationData hidingLocation = await _locationTracker.getLocation();
+    setState(() {
+      hidingPoint = LatLng(hidingLocation.latitude, hidingLocation.longitude);
+    });
+  }
+
   void getCurrentLocation() async {
     try {
       Uint8List hiderImage =
@@ -94,7 +105,7 @@ class _MapPageState extends State<MapPage> {
             _controller.animateCamera(
               CameraUpdate.newCameraPosition(
                 new CameraPosition(
-                    bearing: 192.8334901395799,
+                    bearing: newLocalData.heading,
                     target:
                         LatLng(newLocalData.latitude, newLocalData.longitude),
                     tilt: 70,
@@ -140,8 +151,9 @@ class _MapPageState extends State<MapPage> {
             mapType: MapType.normal,
             initialCameraPosition: initialLocation,
             myLocationButtonEnabled: false,
+            myLocationEnabled: true,
             zoomControlsEnabled: false,
-            markers: Set.of((hider != null) ? [hider, seeker] : []),
+            markers: Set.of((hider != null) ? [seeker] : []),
             circles: Set.of((circle != null) ? [circle] : []),
             onMapCreated: (GoogleMapController controller) {
               _controller = controller;
@@ -149,12 +161,23 @@ class _MapPageState extends State<MapPage> {
             },
           ),
           Align(
-            alignment: Alignment.topLeft,
+            alignment: Alignment.topCenter,
             child: Padding(
               padding: const EdgeInsets.all(15.0),
               child: Text(
                 '05:39',
                 style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: RaisedButton(
+                child: Text('Set Your Hiding Point'),
+                color: Colors.yellow[600],
+                onPressed: setHidingPoint,
               ),
             ),
           ),
@@ -186,6 +209,8 @@ class _MapPageState extends State<MapPage> {
               MaterialPageRoute(builder: (BuildContext context) => LobbyPage()),
               ModalRoute.withName("/"),
             );
+          } else if (value == 1) {
+            _drawerKey.currentState.openDrawer();
           } else if (value == 2) {
             _drawerKey.currentState.openEndDrawer();
           }
@@ -226,6 +251,9 @@ class _MapPageState extends State<MapPage> {
       drawerEdgeDragWidth: 0,
       endDrawer: Drawer(
         child: Chat(),
+      ),
+      drawer: Drawer(
+        child: Clues(),
       ),
     );
   }

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:quiver/async.dart';
 import 'package:hideandseek/pages/HomePage.dart';
-import 'package:hideandseek/pages/LobbyPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_socket_io/flutter_socket_io.dart';
-import 'package:flutter_socket_io/socket_io_manager.dart';
 
 import 'dart:convert' as convert;
 
@@ -27,19 +25,23 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   String userName;
   String userID;
   String roomPass;
-  String usersArr;
   SocketIO socketIO;
 
-  Future<void> getSharedPrefs() async {
+  Future<Null> getSharedPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userName = prefs.getString("user_name");
     userID = prefs.getString("user_id");
     roomPass = prefs.getString("roomPass");
-    usersArr = prefs.getString("users");
-    _players = convert.jsonDecode(usersArr);
+    _players = convert.jsonDecode(prefs.getString("users"));
   }
 
-  _handleUpdate(dynamic data) async {
+  void _handleUpdate(dynamic data) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final Map body = convert.jsonDecode(data);
+    prefs.setString('users', convert.jsonEncode(body["users"]));
+    setState(() {
+      _players = body["users"];
+    });
     print("Socket info: " + data);
   }
 
@@ -61,11 +63,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     sub.onDone(() {
       //LAUNCH THE GAME
       sub.cancel();
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => HomePage()),
-      );
-      //This is currently navigating to the Homepage but will need to redirect to launch of MAP
+      Navigator.pushNamed(context, '/in-game', arguments: socketIO);
     });
   }
 
@@ -129,8 +127,9 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                   width: 150,
                   height: 300,
                   child: ListView.builder(
-                      itemCount: _players.length,
+                      itemCount: _players?.length ?? 0,
                       itemBuilder: (context, index) {
+                        print(_players.length);
                         final playerIndex = _players[index];
                         final userName = playerIndex['user_name'];
                         return Padding(
@@ -202,10 +201,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     if (value == 'Leave lobby') {
       print('leaving the lobby');
       socketIO.sendMessage("leaveRoom", null);
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (BuildContext context) => LobbyPage()),
-          ModalRoute.withName("/LobbyPage"));
+      Navigator.pushNamed(context, '/');
     } else if (value == 'Settings') {
       print('Settings');
     }
