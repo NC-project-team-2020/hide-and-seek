@@ -22,7 +22,7 @@ class _HomePageState extends State<HomePage> {
 
   validateAndSave() async {
     if (_formKey.currentState.validate()) {
-      String body = convert.jsonEncode(<String, String>{
+      String body = convert.jsonEncode(<String, dynamic>{
         'user_name': _username.text,
         'password': _password.text
       });
@@ -31,13 +31,16 @@ class _HomePageState extends State<HomePage> {
         final Map body = convert.jsonDecode(response.body);
         final Map user = body['user'];
         SharedPreferences prefs = await SharedPreferences.getInstance();
-
+        List<dynamic> avatarDyn = user['avatar']['data'];
+        List<dynamic> avatar = avatarDyn.cast<int>();
+        List<String> avatarStrList = avatar.map((i) => i.toString()).toList();
         prefs?.setBool('isLoggedIn', true);
         prefs.setString('token', user['token']);
         prefs.setString('user_id', user['id']);
         prefs.setString('user_name', user['user_name']);
         prefs.setString('first_name', user['first_name']);
         prefs.setString('last_name', user['last_name']);
+        prefs.setStringList('avatar', avatarStrList);
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (BuildContext context) => LobbyPage()),
@@ -57,15 +60,8 @@ class _HomePageState extends State<HomePage> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
-  void dispose() {
-    // Clean up the controller when the widget is removed from the
-    // widget tree.
-    _username.dispose();
-    _password.dispose();
-    super.dispose();
-  }
-
   Widget build(BuildContext context) {
+    print(_password);
     return new Scaffold(
       key: _scaffoldKey,
       appBar: new AppBar(
