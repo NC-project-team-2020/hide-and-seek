@@ -21,7 +21,7 @@ packages:
       name: async
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.4.1"
+    version: "2.4.0"
   badges:
     dependency: "direct main"
     description:
@@ -164,19 +164,33 @@ packages:
     source: hosted
     version: "0.6.5+3"
   location:
-  dependency: "direct main"
-    description:
-      name: image_picker
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.6.5+3"
-  location:
     dependency: "direct main"
     description:
       name: location
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.5.4"
+  location_permissions:
+    dependency: transitive
+    description:
+      name: location_permissions
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.5"
+  location_permissions:
+    dependency: transitive
+    description:
+      name: location_permissions
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.5"
+  location_permissions:
+    dependency: transitive
+    description:
+      name: location_permissions
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.5"
   location_permissions:
     dependency: transitive
     description:
