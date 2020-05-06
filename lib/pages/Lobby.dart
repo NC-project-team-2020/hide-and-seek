@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:quiver/async.dart';
-import 'package:hideandseek/pages/HomePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_socket_io/flutter_socket_io.dart';
 
@@ -15,12 +14,11 @@ class Lobby extends StatefulWidget {
 
 class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   var _players;
-  int _start;
-  int _current;
-  int _gameTime;
-  String _gameTimeText;
+  int hideTime;
+  int seekTime;
   String elapsedTime = '';
   String selectedHider;
+  bool host = false;
   bool startStop = false;
   String userName;
   String userID;
@@ -32,6 +30,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     userName = prefs.getString("user_name");
     userID = prefs.getString("user_id");
     roomPass = prefs.getString("roomPass");
+    host = prefs.getBool("host");
     _players = convert.jsonDecode(prefs.getString("users"));
   }
 
@@ -45,32 +44,19 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     print("Socket info: " + data);
   }
 
-  void startTimer() {
-    CountdownTimer countDownTimer = new CountdownTimer(
-      new Duration(seconds: _start),
-      new Duration(seconds: 1),
-    );
-
-    var sub = countDownTimer.listen(null);
-    sub.onData((duration) {
-      setState(() {
-        _current = _start - duration.elapsed.inSeconds;
-        elapsedTime = transformSeconds(_current);
-        startStop = true;
-      });
-    });
-
-    sub.onDone(() {
-      //LAUNCH THE GAME
-      sub.cancel();
-      Navigator.pushNamed(context, '/in-game', arguments: socketIO);
-    });
+  void launchGame(dynamic data) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final Map body = convert.jsonDecode(data);
+    prefs.setString('hideTime', body["hideTime"]);
+    prefs.setString('hiderID', selectedHider);
+    Navigator.pushNamed(context, '/in-game', arguments: socketIO);
   }
 
   @override
   Widget build(BuildContext context) {
     socketIO = ModalRoute.of(context).settings.arguments;
     socketIO.subscribe("usersUpdate", _handleUpdate);
+    socketIO.subscribe("startGame", launchGame);
 
     return FutureBuilder(
         future: getSharedPrefs(),
@@ -102,27 +88,6 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                       style: TextStyle(fontSize: 25.0),
                       textAlign: TextAlign.center),
                 ),
-                _gameTimeText == null
-                    ? Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          'Set the seek time',
-                          style: TextStyle(fontSize: 25.0),
-                          textAlign: TextAlign.center,
-                        ),
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text('Seek Time: $_gameTimeText',
-                            style: TextStyle(fontSize: 25.0),
-                            textAlign: TextAlign.center),
-                      ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text('Time left to hide: $elapsedTime',
-                      style: TextStyle(fontSize: 25.0),
-                      textAlign: TextAlign.center),
-                ),
                 SizedBox(
                   width: 150,
                   height: 300,
@@ -151,39 +116,53 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                         );
                       }),
                 ),
-                SizedBox(
-                  height: 80.0,
-                  child: RaisedButton(
-                    onPressed: () => startStop ? null : startTimer(),
-                    child: Text(
-                      "Go Hide",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30.0,
+                host
+                    ? SizedBox(
+                        height: 80.0,
+                        child: RaisedButton(
+                          onPressed: () => startStop
+                              ? null
+                              : socketIO.sendMessage("startGame",
+                                  '{ "hideTime": "$hideTime", "roomPass": "$roomPass"}'),
+                          child: Text(
+                            "Go Hide",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 30.0,
+                            ),
+                          ),
+                        ),
+                      )
+                    : Text(
+                        "Waiting for the host to start the game!",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30.0,
+                        ),
                       ),
-                    ),
-                  ),
-                ),
               ],
             ),
-            bottomNavigationBar: BottomNavigationBar(
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home),
-                  title: Text('Room'),
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.settings),
-                  title: Text('Game Settings'),
-                )
-              ],
-              onTap: (value) {
-                if (value == 1) {
-                  gameSettings(context);
-                }
-              },
-            ),
+            bottomNavigationBar: host
+                ? BottomNavigationBar(
+                    items: const <BottomNavigationBarItem>[
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.home),
+                        title: Text('Room'),
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.settings),
+                        title: Text('Game Settings'),
+                      )
+                    ],
+                    onTap: (value) {
+                      if (value == 1) {
+                        gameSettings(context);
+                      }
+                    },
+                  )
+                : null,
           );
         });
   }
@@ -212,7 +191,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Set number of minutes for hunt and seek time'),
+          title: Text('Set number of minutes for hide and seek time'),
           content: settingsSelect(),
         );
       },
@@ -229,7 +208,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
           TextField(
             keyboardType: TextInputType.number,
             controller: _c,
-            decoration: new InputDecoration(labelText: 'Hunt Time'),
+            decoration: new InputDecoration(labelText: 'Hide Time'),
           ),
           TextField(
             keyboardType: TextInputType.number,
@@ -237,13 +216,8 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
             decoration: new InputDecoration(labelText: 'Seek Time'),
           ),
           DropdownButton(
+            value: selectedHider,
             hint: Text('Choose who will hide'),
-            onChanged: (String val) {
-              setState(() {
-                selectedHider = val;
-              });
-            },
-            value: this.selectedHider,
             items: _players.map<DropdownMenuItem<String>>((value) {
               final playerName = value["user_name"];
               print(value);
@@ -253,6 +227,12 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                 child: new Text(playerName),
               );
             }).toList(),
+            onChanged: (String val) {
+              print(val);
+              setState(() {
+                selectedHider = val;
+              });
+            },
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -268,11 +248,8 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                   child: Text('Set'),
                   onPressed: () {
                     setState(() {
-                      this._start = int.parse(_c.text) * 60;
-                      this._current = int.parse(_c.text) * 60;
-                      this._gameTime = int.parse(_g.text) * 60;
-                      this._gameTimeText =
-                          transformSeconds(int.parse(_g.text) * 60);
+                      this.hideTime = int.parse(_c.text);
+                      this.seekTime = int.parse(_g.text);
                     });
                     Navigator.of(context).pop();
                   }),
