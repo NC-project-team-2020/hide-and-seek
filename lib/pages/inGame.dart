@@ -28,7 +28,8 @@ class _MapPageState extends State<MapPage> {
   Circle circle;
   GoogleMapController _controller;
   bool followWithCamera = true;
-
+  int _chatCounter = 0;
+  int _clueCounter = 0;
   //GameData
   LatLng hidingPoint;
 
@@ -210,9 +211,11 @@ class _MapPageState extends State<MapPage> {
               ModalRoute.withName("/"),
             );
           } else if (value == 1) {
-            _drawerKey.currentState.openDrawer();
+            // _drawerKey.currentState.openDrawer();
+            _clueCounterValue(context);
           } else if (value == 2) {
-            _drawerKey.currentState.openEndDrawer();
+            // _drawerKey.currentState.openEndDrawer();
+            _chatCounterValue(context);
           }
         },
         items: <BottomNavigationBarItem>[
@@ -224,7 +227,7 @@ class _MapPageState extends State<MapPage> {
             icon: Badge(
               showBadge: true,
               badgeContent: Text(
-                '3',
+                '${_clueCounter.toString()}',
                 style: TextStyle(color: Colors.white),
               ),
               child: Icon(Icons.search),
@@ -237,7 +240,7 @@ class _MapPageState extends State<MapPage> {
             icon: Badge(
               showBadge: true,
               badgeContent: Text(
-                '1',
+                '${_chatCounter.toString()}',
                 style: TextStyle(color: Colors.white),
               ),
               child: Icon(
@@ -248,13 +251,37 @@ class _MapPageState extends State<MapPage> {
           )
         ],
       ),
-      drawerEdgeDragWidth: 0,
-      endDrawer: Drawer(
-        child: Chat(),
-      ),
-      drawer: Drawer(
-        child: Clues(),
-      ),
+      drawerEdgeDragWidth: 10,
+      // endDrawer: Drawer(
+      //   child: Chat(),
+      // ),
+      drawer: Drawer(child: Clues()),
     );
+  }
+
+  _chatCounterValue(BuildContext context) async {
+    final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Chat(),
+        ));
+    if (result != null) {
+      setState(() {
+        _chatCounter = result;
+      });
+    }
+  }
+
+  _clueCounterValue(BuildContext context) async {
+    final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Clues(),
+        ));
+    if (result != null) {
+      setState(() {
+        _clueCounter = result;
+      });
+    }
   }
 }

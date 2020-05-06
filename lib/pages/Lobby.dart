@@ -84,12 +84,10 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                 PopupMenuButton<String>(
                   onSelected: handleClick,
                   itemBuilder: (BuildContext context) {
-                    return {'Leave lobby', 'Settings'}.map((String choice) {
-                      return PopupMenuItem<String>(
-                        value: choice,
-                        child: Text(choice),
-                      );
-                    }).toList();
+                    const PopupMenuItem<String>(
+                      value: 'Leave lobby',
+                      child: Text('Leave lobby'),
+                    );
                   },
                 ),
               ],
@@ -199,16 +197,11 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   }
 
   void handleClick(String value) async {
-    if (value == 'Leave lobby') {
-      print('leaving the lobby');
-      socketIO.sendMessage("leaveRoom", null);
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (BuildContext context) => LobbyPage()),
-          ModalRoute.withName("/LobbyPage"));
-    } else if (value == 'Settings') {
-      print('Settings');
-    }
+    socketIO.sendMessage("leaveRoom", null);
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (BuildContext context) => LobbyPage()),
+        ModalRoute.withName("/LobbyPage"));
   }
 
   gameSettings(BuildContext context) {

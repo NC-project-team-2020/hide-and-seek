@@ -21,7 +21,7 @@ packages:
       name: async
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.4.1"
+    version: "2.4.0"
   badges:
     dependency: "direct main"
     description:
@@ -162,14 +162,14 @@ packages:
       name: image_picker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.5+3"
-  location:
-  dependency: "direct main"
+    version: "0.6.6+1"
+  image_picker_platform_interface:
+    dependency: transitive
     description:
-      name: image_picker
+      name: image_picker_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.5+3"
+    version: "1.0.0"
   location:
     dependency: "direct main"
     description:
