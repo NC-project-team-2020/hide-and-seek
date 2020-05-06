@@ -22,6 +22,7 @@ class _RegisterState extends State<Register> {
   bool isLoading = false;
 
   validateAndSave() async {
+    FocusScope.of(context).unfocus();
     setState(() {
       isLoading = true;
     });
@@ -38,10 +39,11 @@ class _RegisterState extends State<Register> {
         print('success');
         Navigator.pushNamed(context, '/login');
       } else {
+        Map<String, dynamic> body = convert.jsonDecode(res.body);
         final failedSnackBar = SnackBar(
           backgroundColor: Colors.red[500],
           content: Text(
-            'Something went wrong',
+            body['msg'],
           ),
         );
         _scaffoldKey.currentState.showSnackBar(failedSnackBar);
@@ -50,6 +52,13 @@ class _RegisterState extends State<Register> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  bool validatePassword(String value) {
+    String pattern =
+        r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
+    RegExp regExp = new RegExp(pattern);
+    return regExp.hasMatch(value);
   }
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -139,16 +148,18 @@ class _RegisterState extends State<Register> {
           ),
           SizedBox(height: 25.0),
           TextFormField(
-            readOnly: isLoading,
-            controller: _password,
-            obscureText: true,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Password',
-            ),
-            validator: (value) =>
-                value.isEmpty ? 'The field can\'t be empty' : null,
-          ),
+              readOnly: isLoading,
+              controller: _password,
+              obscureText: true,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Password',
+              ),
+              validator: (value) {
+                return !validatePassword(value)
+                    ? 'The password is not strong enough'
+                    : null;
+              }),
           SizedBox(height: 25.0),
           TextFormField(
             readOnly: isLoading,

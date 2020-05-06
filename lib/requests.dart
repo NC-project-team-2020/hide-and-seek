@@ -10,3 +10,18 @@ Future<http.Response> userReq(String endpoint, String body) {
     body: body,
   );
 }
+
+Future<http.Response> uploadImage(
+    String imageFile, String userId, String token) async {
+  String url = 'https://peekaboo-be.herokuapp.com/api/users/profile';
+  var uri = Uri.parse(url);
+  var request = new http.MultipartRequest("PATCH", uri);
+  Map<String, String> headers = {"Authorization": "Bearer $token"};
+
+  var multipartFile = await http.MultipartFile.fromPath("avatar", imageFile);
+  request.headers.addAll(headers);
+  request.fields['user_id'] = userId;
+  request.files.add(multipartFile);
+  var response = await request.send();
+  return http.Response.fromStream(response);
+}
