@@ -68,12 +68,10 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                 PopupMenuButton<String>(
                   onSelected: handleClick,
                   itemBuilder: (BuildContext context) {
-                    return {'Leave lobby', 'Settings'}.map((String choice) {
-                      return PopupMenuItem<String>(
-                        value: choice,
-                        child: Text(choice),
-                      );
-                    }).toList();
+                    const PopupMenuItem<String>(
+                      value: 'Leave lobby',
+                      child: Text('Leave lobby'),
+                    );
                   },
                 ),
               ],
