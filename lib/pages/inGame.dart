@@ -10,6 +10,9 @@ import 'package:badges/badges.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:ui' as ui;
 import './LobbyPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_socket_io/flutter_socket_io.dart';
+import 'dart:convert' as convert;
 
 class MapPage extends StatefulWidget {
   MapPage({Key key, this.title}) : super(key: key);
@@ -20,6 +23,7 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
+  var _players;
   GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
   StreamSubscription _locationSubscription;
   Location _locationTracker = Location();
@@ -30,6 +34,13 @@ class _MapPageState extends State<MapPage> {
   bool followWithCamera = true;
   int _chatCounter = 0;
   int _clueCounter = 0;
+  SocketIO socketIO;
+  String userName;
+  String userID;
+  String roomPass;
+  String hiderID;
+  bool host;
+
   //GameData
   LatLng hidingPoint;
 
@@ -47,6 +58,16 @@ class _MapPageState extends State<MapPage> {
     return (await fi.image.toByteData(format: ui.ImageByteFormat.png))
         .buffer
         .asUint8List();
+  }
+
+  Future<Null> getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userName = prefs.getString("user_name");
+    userID = prefs.getString("user_id");
+    roomPass = prefs.getString("roomPass");
+    hiderID = prefs.getString("hiderID");
+    host = prefs.getBool("host");
+    _players = convert.jsonDecode(prefs.getString("users"));
   }
 
   void updateMarkerAndCircle(
@@ -79,7 +100,8 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
-  Future<void> setHidingPoint() async {
+  Future<void> setHidingPoint(dynamic data) async {
+    print(data);
     LocationData hidingLocation = await _locationTracker.getLocation();
     setState(() {
       hidingPoint = LatLng(hidingLocation.latitude, hidingLocation.longitude);
@@ -144,119 +166,123 @@ class _MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _drawerKey,
-      body: Stack(
-        children: <Widget>[
-          GoogleMap(
-            mapType: MapType.normal,
-            initialCameraPosition: initialLocation,
-            myLocationButtonEnabled: false,
-            myLocationEnabled: true,
-            zoomControlsEnabled: false,
-            markers: Set.of((hider != null) ? [seeker] : []),
-            circles: Set.of((circle != null) ? [circle] : []),
-            onMapCreated: (GoogleMapController controller) {
-              _controller = controller;
-              controller.setMapStyle(_mapStyle);
-            },
-          ),
-          Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Text(
-                '05:39',
-                style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold),
-              ),
+    socketIO = ModalRoute.of(context).settings.arguments;
+    socketIO.subscribe("startSeek", setHidingPoint);
+
+    return FutureBuilder(
+        future: getSharedPrefs(),
+        builder: (context, snapshot) {
+          print(roomPass);
+          return new Scaffold(
+            key: _drawerKey,
+            body: Stack(
+              children: <Widget>[
+                GoogleMap(
+                  mapType: MapType.normal,
+                  initialCameraPosition: initialLocation,
+                  myLocationButtonEnabled: false,
+                  myLocationEnabled: true,
+                  zoomControlsEnabled: false,
+                  markers: Set.of((hider != null) ? [seeker] : []),
+                  circles: Set.of((circle != null) ? [circle] : []),
+                  onMapCreated: (GoogleMapController controller) {
+                    _controller = controller;
+                    controller.setMapStyle(_mapStyle);
+                  },
+                ),
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Text(
+                      '05:39',
+                      style: TextStyle(
+                          fontSize: 25.0, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: RaisedButton(
+                        child: Text('Set Your Hiding Point'),
+                        color: Colors.yellow[600],
+                        onPressed: () {
+                          socketIO.sendMessage("startSeek",
+                              '{ "seekTime": 10, "roomPass": "$roomPass"}');
+                        }),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: FloatingActionButton(
+                      heroTag: 'getLocation',
+                      child: Icon(Icons.location_on),
+                      backgroundColor: followWithCamera
+                          ? Colors.blue
+                          : Colors.blue.withAlpha(30),
+                      onPressed: () {
+                        getCurrentLocation();
+                        setState(() {
+                          followWithCamera = !followWithCamera;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: RaisedButton(
-                child: Text('Set Your Hiding Point'),
-                color: Colors.yellow[600],
-                onPressed: setHidingPoint,
-              ),
+            bottomNavigationBar: BottomNavigationBar(
+              onTap: (value) {
+                if (value == 0) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => LobbyPage()),
+                    ModalRoute.withName("/"),
+                  );
+                } else if (value == 1) {
+                  _clueCounterValue(context);
+                } else if (value == 2) {
+                  _chatCounterValue(context);
+                }
+              },
+              items: <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  title: Text('Lobby'),
+                ),
+                BottomNavigationBarItem(
+                  icon: Badge(
+                    showBadge: true,
+                    badgeContent: Text(
+                      '${_clueCounter.toString()}',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    child: Icon(Icons.search),
+                  ),
+                  title: Text('Clues'),
+                ),
+                BottomNavigationBarItem(
+                  icon: Badge(
+                    showBadge: true,
+                    badgeContent: Text(
+                      '${_chatCounter.toString()}',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    child: Icon(
+                      Icons.chat,
+                    ),
+                  ),
+                  title: Text('Chat'),
+                )
+              ],
             ),
-          ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: FloatingActionButton(
-                heroTag: 'getLocation',
-                child: Icon(Icons.location_on),
-                backgroundColor:
-                    followWithCamera ? Colors.blue : Colors.blue.withAlpha(30),
-                onPressed: () {
-                  getCurrentLocation();
-                  setState(() {
-                    followWithCamera = !followWithCamera;
-                  });
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: (value) {
-          if (value == 0) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (BuildContext context) => LobbyPage()),
-              ModalRoute.withName("/"),
-            );
-          } else if (value == 1) {
-            // _drawerKey.currentState.openDrawer();
-            _clueCounterValue(context);
-          } else if (value == 2) {
-            // _drawerKey.currentState.openEndDrawer();
-            _chatCounterValue(context);
-          }
-        },
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            title: Text('Lobby'),
-          ),
-          BottomNavigationBarItem(
-            icon: Badge(
-              showBadge: true,
-              badgeContent: Text(
-                '${_clueCounter.toString()}',
-                style: TextStyle(color: Colors.white),
-              ),
-              child: Icon(Icons.search),
-            ),
-            title: Text(
-              'Clues',
-            ),
-          ),
-          BottomNavigationBarItem(
-            icon: Badge(
-              showBadge: true,
-              badgeContent: Text(
-                '${_chatCounter.toString()}',
-                style: TextStyle(color: Colors.white),
-              ),
-              child: Icon(
-                Icons.chat,
-              ),
-            ),
-            title: Text('Chat'),
-          )
-        ],
-      ),
-      drawerEdgeDragWidth: 10,
-      // endDrawer: Drawer(
-      //   child: Chat(),
-      // ),
-      drawer: Drawer(child: Clues()),
-    );
+          );
+        });
   }
 
   _chatCounterValue(BuildContext context) async {

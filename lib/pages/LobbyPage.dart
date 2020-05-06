@@ -18,6 +18,7 @@ class _LobbyPageState extends State<LobbyPage> {
   SocketIO socketIO;
   String userName;
   String userID;
+  String roomPass;
 
   Future<Null> getSharedPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -34,8 +35,8 @@ class _LobbyPageState extends State<LobbyPage> {
     );
     //Call init before doing anything with socket
     socketIO.init();
-    socketIO.subscribe("createRoom", _handleRoom);
-    socketIO.subscribe("joinRoom", _handleRoom);
+    socketIO.subscribe("createRoom", (data) => _handleRoom(data, true));
+    socketIO.subscribe("joinRoom", (data) => _handleRoom(data, false));
 
     //Connect to the socket
     socketIO.connect();
@@ -43,13 +44,14 @@ class _LobbyPageState extends State<LobbyPage> {
     super.initState();
   }
 
-  _handleRoom(dynamic data) async {
+  _handleRoom(dynamic data, bool host) async {
     print("Socket info: " + data);
     print(socketIO);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final Map body = convert.jsonDecode(data);
-    prefs.setString('roomPass', body["roomPassword"]);
+    prefs.setString('roomPass', host ? body["roomPassword"] : roomPass);
     prefs.setString('users', convert.jsonEncode(body["users"]));
+    prefs.setBool('host', host);
     Navigator.pushNamed(context, '/lobby-room', arguments: socketIO);
   }
 
@@ -114,6 +116,9 @@ class _LobbyPageState extends State<LobbyPage> {
               RaisedButton(
                 onPressed: () {
                   joinRoomDialog(context).then((roomID) {
+                    setState(() {
+                      roomPass = roomID;
+                    });
                     if (roomID.toString().length > 0 && roomID != null) {
                       print(roomID);
                       String jsonData =
