@@ -13,6 +13,7 @@ import './LobbyPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_socket_io/flutter_socket_io.dart';
 import 'dart:convert' as convert;
+import 'package:quiver/async.dart';
 
 class MapPage extends StatefulWidget {
   MapPage({Key key, this.title}) : super(key: key);
@@ -41,6 +42,12 @@ class _MapPageState extends State<MapPage> {
   String hiderID;
   bool host;
 
+  // timer - setup
+  int hiderTime = 0;
+  int _current = 0;
+  String elapsedTime = '';
+  bool startStop = false;
+
   //GameData
   LatLng hidingPoint;
 
@@ -66,8 +73,16 @@ class _MapPageState extends State<MapPage> {
     userID = prefs.getString("user_id");
     roomPass = prefs.getString("roomPass");
     hiderID = prefs.getString("hiderID");
+    var hide = DateTime.parse(prefs.getString("hideTime"));
+    var now = new DateTime.now();
+    var difTime = hide.difference(now);
+    hiderTime = difTime.inSeconds;
+    _current = difTime.inSeconds;
     host = prefs.getBool("host");
     _players = convert.jsonDecode(prefs.getString("users"));
+    print("time");
+    print(hiderTime);
+    startTimer(hiderTime);
   }
 
   void updateMarkerAndCircle(
@@ -102,6 +117,12 @@ class _MapPageState extends State<MapPage> {
 
   Future<void> setHidingPoint(dynamic data) async {
     print(data);
+    final Map body = convert.jsonDecode(data);
+    var seek = DateTime.parse(body["seekTime"]);
+    var now = new DateTime.now();
+    var difference = seek.difference(now);
+    print(difference.inSeconds);
+
     LocationData hidingLocation = await _locationTracker.getLocation();
     setState(() {
       hidingPoint = LatLng(hidingLocation.latitude, hidingLocation.longitude);
@@ -164,6 +185,36 @@ class _MapPageState extends State<MapPage> {
     super.dispose();
   }
 
+  void startTimer(time) {
+    CountdownTimer countDownTimer = new CountdownTimer(
+      new Duration(seconds: time),
+      new Duration(seconds: 1),
+    );
+
+    var sub = countDownTimer.listen(null);
+    sub.onData((duration) {
+      setState(() {
+        _current = time - duration.elapsed.inSeconds;
+        elapsedTime = transformSeconds(_current);
+        startStop = true;
+      });
+    });
+
+    sub.onDone(() {
+//LAUNCH THE GAME
+      sub.cancel();
+    });
+  }
+
+  transformSeconds(int seconds) {
+    int minutes = (seconds / 60).truncate();
+
+    String minutesStr = (minutes % 60).toString().padLeft(2, '0');
+    String secondsStr = (seconds % 60).toString().padLeft(2, '0');
+
+    return "$minutesStr:$secondsStr";
+  }
+
   @override
   Widget build(BuildContext context) {
     socketIO = ModalRoute.of(context).settings.arguments;
@@ -195,25 +246,27 @@ class _MapPageState extends State<MapPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(15.0),
                     child: Text(
-                      '05:39',
+                      elapsedTime,
                       style: TextStyle(
                           fontSize: 25.0, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
-                Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: RaisedButton(
-                        child: Text('Set Your Hiding Point'),
-                        color: Colors.yellow[600],
-                        onPressed: () {
-                          socketIO.sendMessage("startSeek",
-                              '{ "seekTime": 10, "roomPass": "$roomPass"}');
-                        }),
-                  ),
-                ),
+                userName == hiderID
+                    ? Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: RaisedButton(
+                              child: Text('Set Your Hiding Point'),
+                              color: Colors.yellow[600],
+                              onPressed: () {
+                                socketIO.sendMessage("startSeek",
+                                    '{ "seekTime": 10, "roomPass": "$roomPass"}');
+                              }),
+                        ),
+                      )
+                    : Container(),
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Padding(

@@ -162,18 +162,7 @@ packages:
       name: image_picker
       url: "https://pub.dartlang.org"
     source: hosted
-<<<<<<< HEAD
-    version: "0.6.6+1"
-  image_picker_platform_interface:
-    dependency: transitive
-    description:
-      name: image_picker_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.0"
-=======
     version: "0.6.5+3"
->>>>>>> f14710b929b83c9c02bb68a40361e0b4d11ba6cc
   location:
     dependency: "direct main"
     description:
