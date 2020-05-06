@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:quiver/async.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_socket_io/flutter_socket_io.dart';
-
 import 'dart:convert' as convert;
 
 class Lobby extends StatefulWidget {
@@ -16,6 +15,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   var _players;
   int hideTime;
   int seekTime;
+  int radiusMeterage;
   String elapsedTime = '';
   String selectedHider;
   bool host = false;
@@ -45,6 +45,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   }
 
   void launchGame(dynamic data) async {
+<<<<<<< HEAD
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final Map body = convert.jsonDecode(data);
     print(body);
@@ -52,6 +53,18 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     prefs.setString('hideTime', body["hideTime"]);
     prefs.setString('hiderID', selectedHider);
     Navigator.pushNamed(context, '/in-game', arguments: socketIO);
+=======
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final Map body = convert.jsonDecode(data);
+      prefs.setString('hideTime', body["hideTime"]);
+      prefs.setString('hiderID', selectedHider);
+      prefs.setInt('radiusMeterage', radiusMeterage);
+      Navigator.pushNamed(context, '/in-game', arguments: socketIO);
+    } catch (err) {
+      print(err);
+    }
+>>>>>>> 97899abd1656a4f95cb454398af6e08ce4cd89e6
   }
 
   @override
@@ -69,14 +82,10 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
               actions: <Widget>[
                 PopupMenuButton<String>(
                   onSelected: handleClick,
-                  itemBuilder: (BuildContext context) {
-                    return {'Leave lobby', 'Settings'}.map((String choice) {
-                      return PopupMenuItem<String>(
-                        value: choice,
-                        child: Text(choice),
-                      );
-                    }).toList();
-                  },
+                  itemBuilder: (_) => <PopupMenuItem<String>>[
+                    new PopupMenuItem<String>(
+                        child: const Text('Leave lobby'), value: 'Leave lobby'),
+                  ],
                 ),
               ],
             ),
@@ -96,7 +105,6 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                   child: ListView.builder(
                       itemCount: _players?.length ?? 0,
                       itemBuilder: (context, index) {
-                        print(_players.length);
                         final playerIndex = _players[index];
                         final userName = playerIndex['user_name'];
                         return Padding(
@@ -183,8 +191,6 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
       print('leaving the lobby');
       socketIO.sendMessage("leaveRoom", null);
       Navigator.pushNamed(context, '/');
-    } else if (value == 'Settings') {
-      print('Settings');
     }
   }
 
@@ -203,63 +209,72 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   settingsSelect() {
     TextEditingController _c = new TextEditingController();
     TextEditingController _g = new TextEditingController();
-    return Container(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          TextField(
-            keyboardType: TextInputType.number,
-            controller: _c,
-            decoration: new InputDecoration(labelText: 'Hide Time'),
-          ),
-          TextField(
-            keyboardType: TextInputType.number,
-            controller: _g,
-            decoration: new InputDecoration(labelText: 'Seek Time'),
-          ),
-          DropdownButton(
-            value: selectedHider,
-            hint: Text('Choose who will hide'),
-            items: _players.map<DropdownMenuItem<String>>((value) {
-              final playerName = value["user_name"];
-              print(value);
-              print(playerName);
-              return new DropdownMenuItem<String>(
-                value: playerName,
-                child: new Text(playerName),
-              );
-            }).toList(),
-            onChanged: (String val) {
-              print(val);
-              setState(() {
-                selectedHider = val;
-              });
-            },
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              MaterialButton(
-                  elevation: 5.0,
-                  child: Text('Close'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  }),
-              MaterialButton(
-                  elevation: 5.0,
-                  child: Text('Set'),
-                  onPressed: () {
-                    setState(() {
-                      this.hideTime = int.parse(_c.text);
-                      this.seekTime = int.parse(_g.text);
-                    });
-                    Navigator.of(context).pop();
-                  }),
-            ],
-          ),
-        ],
-      ),
-    );
+    TextEditingController _radius = new TextEditingController();
+    String hiderSelected = selectedHider;
+    return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setLocalState) {
+      return Container(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            TextField(
+              keyboardType: TextInputType.number,
+              controller: _c,
+              decoration: new InputDecoration(labelText: 'Hide Time'),
+            ),
+            TextField(
+              keyboardType: TextInputType.number,
+              controller: _g,
+              decoration: new InputDecoration(labelText: 'Seek Time'),
+            ),
+            TextField(
+              keyboardType: TextInputType.number,
+              controller: _radius,
+              decoration: new InputDecoration(labelText: 'Radius Meterage'),
+            ),
+            DropdownButton(
+              value: hiderSelected,
+              hint: Text('Choose who will hide'),
+              items: _players.map<DropdownMenuItem<String>>((value) {
+                final playerName = value["user_name"];
+                return new DropdownMenuItem<String>(
+                  value: playerName,
+                  child: new Text(playerName),
+                );
+              }).toList(),
+              onChanged: (String val) {
+                setLocalState(() {
+                  hiderSelected = val;
+                });
+              },
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                MaterialButton(
+                    elevation: 5.0,
+                    child: Text('Close'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    }),
+                MaterialButton(
+                    elevation: 5.0,
+                    child: Text('Set'),
+                    onPressed: () {
+                      setState(() {
+                        this.hideTime = int.parse(_c.text);
+                        this.seekTime = int.parse(_g.text);
+                        this.radiusMeterage = int.parse(_radius.text);
+                        this.selectedHider = hiderSelected;
+                      });
+                      Navigator.of(context).pop();
+                    }),
+              ],
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   void _showcontent(BuildContext context) {

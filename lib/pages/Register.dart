@@ -19,10 +19,13 @@ class _RegisterState extends State<Register> {
   final TextEditingController _lastName = TextEditingController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _repeatPassword = TextEditingController();
+  bool isLoading = false;
 
   validateAndSave() async {
-    print(_password.text);
-    print(_repeatPassword.text);
+    FocusScope.of(context).unfocus();
+    setState(() {
+      isLoading = true;
+    });
     if (_formKey.currentState.validate()) {
       String body = convert.jsonEncode(<String, String>{
         'user_name': _username.text,
@@ -36,16 +39,26 @@ class _RegisterState extends State<Register> {
         print('success');
         Navigator.pushNamed(context, '/login');
       } else {
-        print('fail');
+        Map<String, dynamic> body = convert.jsonDecode(res.body);
         final failedSnackBar = SnackBar(
           backgroundColor: Colors.red[500],
           content: Text(
-            'Something went wrong',
+            body['msg'],
           ),
         );
         _scaffoldKey.currentState.showSnackBar(failedSnackBar);
       }
     }
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  bool validatePassword(String value) {
+    String pattern =
+        r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
+    RegExp regExp = new RegExp(pattern);
+    return regExp.hasMatch(value);
   }
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -74,6 +87,7 @@ class _RegisterState extends State<Register> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           TextFormField(
+            readOnly: isLoading,
             controller: _username,
             decoration: const InputDecoration(
               labelText: 'Username',
@@ -88,6 +102,7 @@ class _RegisterState extends State<Register> {
           ),
           SizedBox(height: 25.0),
           TextFormField(
+            readOnly: isLoading,
             controller: _email,
             keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(
@@ -103,6 +118,7 @@ class _RegisterState extends State<Register> {
           ),
           SizedBox(height: 25.0),
           TextFormField(
+            readOnly: isLoading,
             controller: _firstName,
             decoration: const InputDecoration(
               labelText: 'First name',
@@ -117,6 +133,7 @@ class _RegisterState extends State<Register> {
           ),
           SizedBox(height: 25.0),
           TextFormField(
+            readOnly: isLoading,
             controller: _lastName,
             decoration: const InputDecoration(
               labelText: 'Second name',
@@ -131,17 +148,21 @@ class _RegisterState extends State<Register> {
           ),
           SizedBox(height: 25.0),
           TextFormField(
-            controller: _password,
-            obscureText: true,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Password',
-            ),
-            validator: (value) =>
-                value.isEmpty ? 'The field can\'t be empty' : null,
-          ),
+              readOnly: isLoading,
+              controller: _password,
+              obscureText: true,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Password',
+              ),
+              validator: (value) {
+                return !validatePassword(value)
+                    ? 'The password is not strong enough'
+                    : null;
+              }),
           SizedBox(height: 25.0),
           TextFormField(
+            readOnly: isLoading,
             controller: _repeatPassword,
             obscureText: true,
             decoration: const InputDecoration(
@@ -155,9 +176,12 @@ class _RegisterState extends State<Register> {
           SizedBox(height: 25.0),
           SizedBox(
             width: double.infinity,
+            height: 50,
             child: RaisedButton(
               onPressed: validateAndSave,
-              child: Text('Register now'),
+              child: isLoading
+                  ? CircularProgressIndicator()
+                  : Text('Register Now'),
             ),
           ),
         ],
