@@ -1,8 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:hideandseek/pages/components/clues/cluesList.component.dart';
+import 'package:hideandseek/pages/components/clues/clueHistory.component.dart';
+import 'package:flutter_socket_io/flutter_socket_io.dart';
+import 'dart:convert' as convert;
 
 class Clues extends StatefulWidget {
-  Clues({Key key}) : super(key: key);
+  SocketIO socketIO;
+  String userName;
+  String hiderID;
+  String roomPass;
+
+  Clues(
+      {Key key,
+      @required this.socketIO,
+      this.userName,
+      this.hiderID,
+      this.roomPass})
+      : super(key: key);
 
   @override
   _CluesState createState() => _CluesState();
@@ -11,26 +24,75 @@ class Clues extends StatefulWidget {
 class _CluesState extends State<Clues> {
   final TextEditingController _clue = TextEditingController();
   int _countOfUnreadClues;
-  String user = 'Hannes';
-  String _msgSender = 'Hannes';
+  SocketIO socketIO;
+  String user_name;
+  String hider;
+  String roomPass;
+
   @override
   void initState() {
     _countOfUnreadClues = 0;
     clues = [];
-
+    socketIO = widget.socketIO;
+    socketIO.subscribe("sendClue", _handleClues);
+    user_name = widget.userName;
+    hider = widget.hiderID;
+    roomPass = widget.roomPass;
     super.initState();
-    print("open");
+  }
+
+  void _sendChatClue(String msg) async {
+    socketIO.sendMessage("sendClue",
+        '{"msg":"$msg", "user_name":"$user_name", "roomPass":"$roomPass"}');
+  }
+
+  void sendClue() {
+    String msg = _clue.text;
+    if (msg.isNotEmpty) {
+      setState(() {
+        clues.add({
+          'clue': _clue.text,
+          'written_by': user_name,
+          'created_at': new DateTime.now().toString()
+        });
+      });
+      _sendChatClue(_clue.text);
+      _clue.clear();
+    }
+  }
+
+  void sendClueResponse(msg) {
+    setState(() {
+      clues.add({
+        'clue': msg,
+        'written_by': user_name,
+        'created_at': new DateTime.now().toString()
+      });
+    });
+    _sendChatClue(msg);
+  }
+
+  void _handleClues(dynamic event) async {
+    final Map msg = convert.jsonDecode(event);
+    setState(() {
+      clues.add({
+        'clue': convert.jsonEncode(msg["msg"]),
+        'written_by': convert.jsonEncode(msg["user_name"]),
+        'created_at': convert.jsonEncode(msg["date"])
+      });
+    });
   }
 
   List<Map<String, String>> clues = [];
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Expanded(flex: 8, child: cluesList(clues)),
-          user == _msgSender
+          Expanded(flex: 8, child: clueHistory(clues, user_name)),
+          user_name == hider
               ? Expanded(
                   flex: 1,
                   child: Row(
@@ -52,11 +114,7 @@ class _CluesState extends State<Clues> {
                           onPressed: () {
                             String clue = _clue.text;
                             if (clue.length > 0 && clues.length < 3) {
-                              setState(() {
-                                clues.add({'clue': clue});
-                                _countOfUnreadClues = _countOfUnreadClues + 1;
-                              });
-                              _clue.clear();
+                              sendClue();
                             } else {
                               return null;
                             }
@@ -71,7 +129,7 @@ class _CluesState extends State<Clues> {
                           child: RaisedButton(
                             color: Colors.blue[200],
                             onPressed: () {
-                              if (user != _msgSender) {
+                              if (user_name != hider) {
                                 unreadMessageCounter(context);
                               } else
                                 Navigator.pop(context);
@@ -95,9 +153,7 @@ class _CluesState extends State<Clues> {
                           child: RaisedButton(
                             color: Colors.blue[200],
                             onPressed: () {
-                              setState(() {
-                                clues.add({'clue': "I'm on the hunt"});
-                              });
+                              sendClueResponse("I'm on the hunt");
                             },
                             // add functionality here to say in user != user then run unread messagecounter
                             child: Text("I'm on the hunt"),
@@ -111,12 +167,9 @@ class _CluesState extends State<Clues> {
                           child: RaisedButton(
                             color: Colors.blue[200],
                             onPressed: () {
-                              setState(() {
-                                clues.add({'clue': "C'mon another clue"});
-                              });
+                              sendClueResponse('Can i have another clue');
                             },
-                            // add functionality here to say in user != user then run unread messagecounter
-                            child: Text("C'mon another clue"),
+                            child: Text("Can i have another clue"),
                           ),
                         ),
                       ),
