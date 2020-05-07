@@ -45,26 +45,17 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   }
 
   void launchGame(dynamic data) async {
-<<<<<<< HEAD
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final Map body = convert.jsonDecode(data);
-    print(body);
-    print(body["hideTime"]);
-    prefs.setString('hideTime', body["hideTime"]);
-    prefs.setString('hiderID', selectedHider);
-    Navigator.pushNamed(context, '/in-game', arguments: socketIO);
-=======
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       final Map body = convert.jsonDecode(data);
       prefs.setString('hideTime', body["hideTime"]);
+      prefs.setInt('seekTime', seekTime);
       prefs.setString('hiderID', selectedHider);
       prefs.setInt('radiusMeterage', radiusMeterage);
       Navigator.pushNamed(context, '/in-game', arguments: socketIO);
     } catch (err) {
       print(err);
     }
->>>>>>> 97899abd1656a4f95cb454398af6e08ce4cd89e6
   }
 
   @override

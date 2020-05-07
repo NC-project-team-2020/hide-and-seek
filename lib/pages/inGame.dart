@@ -41,12 +41,20 @@ class _MapPageState extends State<MapPage> {
   String roomPass;
   String hiderID;
   bool host;
+  String turn = "hide";
+  bool hiderTimeStart = false;
 
   // timer - setup
   int hiderTime = 0;
+  int seekerTime = 0;
+
   int _current = 0;
   String elapsedTime = '';
   bool startStop = false;
+
+  int _currentSeek = 0;
+  String elapsedTimeSeek = '';
+  bool startStopSeek = false;
 
   //GameData
   LatLng hidingPoint;
@@ -73,6 +81,7 @@ class _MapPageState extends State<MapPage> {
     userID = prefs.getString("user_id");
     roomPass = prefs.getString("roomPass");
     hiderID = prefs.getString("hiderID");
+    seekerTime = prefs.getInt("seekTime");
     var hide = DateTime.parse(prefs.getString("hideTime"));
     var now = new DateTime.now();
     var difTime = hide.difference(now);
@@ -82,7 +91,10 @@ class _MapPageState extends State<MapPage> {
     _players = convert.jsonDecode(prefs.getString("users"));
     print("time");
     print(hiderTime);
-    startTimer(hiderTime);
+    if (!hiderTimeStart) {
+      hiderTimeStart = true;
+      startTimer(hiderTime);
+    }
   }
 
   void updateMarkerAndCircle(
@@ -107,7 +119,7 @@ class _MapPageState extends State<MapPage> {
 
       circle = Circle(
           circleId: CircleId("hiding-area"),
-          radius: 300,
+          radius: 500,
           zIndex: 1,
           strokeColor: Colors.red,
           center: LatLng(54.882690, -2.930539),
@@ -120,13 +132,16 @@ class _MapPageState extends State<MapPage> {
     final Map body = convert.jsonDecode(data);
     var seek = DateTime.parse(body["seekTime"]);
     var now = new DateTime.now();
-    var difference = seek.difference(now);
-    print(difference.inSeconds);
+    var difTime = seek.difference(now);
 
     LocationData hidingLocation = await _locationTracker.getLocation();
     setState(() {
       hidingPoint = LatLng(hidingLocation.latitude, hidingLocation.longitude);
+      seekerTime = difTime.inSeconds;
+      _currentSeek = difTime.inSeconds;
+      turn = "seek";
     });
+    startTimerSeek(seekerTime);
   }
 
   void getCurrentLocation() async {
@@ -201,8 +216,35 @@ class _MapPageState extends State<MapPage> {
     });
 
     sub.onDone(() {
-//LAUNCH THE GAME
+      print("here");
       sub.cancel();
+      print(turn);
+      if (turn == "hide") {
+        socketIO.sendMessage(
+            "startSeek", '{ "seekTime": $seekerTime, "roomPass": "$roomPass"}');
+      }
+    });
+  }
+
+  void startTimerSeek(time) {
+    CountdownTimer countDownTimerSeek = new CountdownTimer(
+      new Duration(seconds: time),
+      new Duration(seconds: 1),
+    );
+
+    var sub = countDownTimerSeek.listen(null);
+    sub.onData((duration) {
+      setState(() {
+        _currentSeek = time - duration.elapsed.inSeconds;
+        elapsedTimeSeek = transformSeconds(_currentSeek);
+        startStopSeek = true;
+      });
+    });
+
+    sub.onDone(() {
+      print("here");
+      sub.cancel();
+      print(turn);
     });
   }
 
@@ -245,14 +287,23 @@ class _MapPageState extends State<MapPage> {
                   alignment: Alignment.topCenter,
                   child: Padding(
                     padding: const EdgeInsets.all(15.0),
-                    child: Text(
-                      elapsedTime,
-                      style: TextStyle(
-                          fontSize: 25.0, fontWeight: FontWeight.bold),
+                    child: Column(
+                      children: <Widget>[
+                        Text(
+                          "Turn: $turn",
+                          style: TextStyle(
+                              fontSize: 25.0, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          turn == "hide" ? elapsedTime : elapsedTimeSeek,
+                          style: TextStyle(
+                              fontSize: 25.0, fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                userName == hiderID
+                userName == hiderID && turn == "hide"
                     ? Align(
                         alignment: Alignment.bottomLeft,
                         child: Padding(
@@ -262,7 +313,7 @@ class _MapPageState extends State<MapPage> {
                               color: Colors.yellow[600],
                               onPressed: () {
                                 socketIO.sendMessage("startSeek",
-                                    '{ "seekTime": 10, "roomPass": "$roomPass"}');
+                                    '{ "seekTime": $seekerTime, "roomPass": "$roomPass"}');
                               }),
                         ),
                       )
