@@ -173,9 +173,10 @@ class _MapPageState extends State<MapPage> {
 
   getHidingPoint (dynamic data) {
     final Map body = convert.jsonDecode(data);
-    int hidingLat = int.parse(body["latitude"]).toDouble();
-    int hidingLon = int.parse(body["longitude"]).toDouble();
+    double hidingLat = int.parse(body["latitude"]).toDouble();
+    double hidingLon = int.parse(body["longitude"]).toDouble();
     hidingPoint = LatLng(hidingLat, hidingLon);
+    print(hidingPoint);
 
   }
 
