@@ -44,15 +44,17 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     print("Socket info: " + data);
   }
 
-  void launchGame(dynamic data) async {
+  void launchGame(dynamic data) {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
       final Map body = convert.jsonDecode(data);
-      prefs.setString('hideTime', body["hideTime"]);
-      prefs.setInt('seekTime', seekTime);
-      prefs.setString('hiderID', selectedHider);
-      prefs.setInt('radiusMeterage', radiusMeterage);
-      Navigator.pushNamed(context, '/in-game', arguments: socketIO);
+      Map<String, dynamic> arguments = {
+        'socketIO': socketIO,
+        "seekTime": seekTime,
+        "hideTime": body["hideTime"],
+        "radiusMeterage": radiusMeterage,
+        "selectedHider": selectedHider
+      };
+      Navigator.pushNamed(context, '/in-game', arguments: arguments);
     } catch (err) {
       print(err);
     }
@@ -67,104 +69,109 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     return FutureBuilder(
         future: getSharedPrefs(),
         builder: (context, snapshot) {
-          return new Scaffold(
-            appBar: new AppBar(
-              title: Text('Lobby'),
-              actions: <Widget>[
-                PopupMenuButton<String>(
-                  onSelected: handleClick,
-                  itemBuilder: (_) => <PopupMenuItem<String>>[
-                    new PopupMenuItem<String>(
-                        child: const Text('Leave lobby'), value: 'Leave lobby'),
-                  ],
-                ),
-              ],
-            ),
-            body: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text('Room Password: $roomPass',
-                      style: TextStyle(fontSize: 25.0),
-                      textAlign: TextAlign.center),
-                ),
-                SizedBox(
-                  width: 150,
-                  height: 300,
-                  child: ListView.builder(
-                      itemCount: _players?.length ?? 0,
-                      itemBuilder: (context, index) {
-                        final playerIndex = _players[index];
-                        final userName = playerIndex['user_name'];
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ListTile(
-                              title: Text(
-                                playerIndex == selectedHider
-                                    ? "$userName is the hider"
-                                    : userName,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 30.0,
+          if (snapshot.connectionState == ConnectionState.done) {
+            return new Scaffold(
+              appBar: new AppBar(
+                title: Text('Lobby'),
+                actions: <Widget>[
+                  PopupMenuButton<String>(
+                    onSelected: handleClick,
+                    itemBuilder: (_) => <PopupMenuItem<String>>[
+                      new PopupMenuItem<String>(
+                          child: const Text('Leave lobby'),
+                          value: 'Leave lobby'),
+                    ],
+                  ),
+                ],
+              ),
+              body: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Room Password: $roomPass',
+                        style: TextStyle(fontSize: 25.0),
+                        textAlign: TextAlign.center),
+                  ),
+                  SizedBox(
+                    width: 150,
+                    height: 300,
+                    child: ListView.builder(
+                        itemCount: _players?.length ?? 0,
+                        itemBuilder: (context, index) {
+                          final playerIndex = _players[index];
+                          final userName = playerIndex['user_name'];
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ListTile(
+                                title: Text(
+                                  playerIndex == selectedHider
+                                      ? "$userName is the hider"
+                                      : userName,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 30.0,
+                                  ),
                                 ),
+                                onTap: () {
+                                  _showcontent(context);
+                                }),
+                          );
+                        }),
+                  ),
+                  host
+                      ? SizedBox(
+                          height: 80.0,
+                          child: RaisedButton(
+                            onPressed: () => startStop
+                                ? null
+                                : socketIO.sendMessage("startGame",
+                                    '{ "hideTime": "$hideTime", "roomPass": "$roomPass"}'),
+                            child: Text(
+                              "Go Hide",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 30.0,
                               ),
-                              onTap: () {
-                                _showcontent(context);
-                              }),
-                        );
-                      }),
-                ),
-                host
-                    ? SizedBox(
-                        height: 80.0,
-                        child: RaisedButton(
-                          onPressed: () => startStop
-                              ? null
-                              : socketIO.sendMessage("startGame",
-                                  '{ "hideTime": "$hideTime", "roomPass": "$roomPass"}'),
-                          child: Text(
-                            "Go Hide",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 30.0,
                             ),
                           ),
+                        )
+                      : Text(
+                          "Waiting for the host to start the game!",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 30.0,
+                          ),
                         ),
-                      )
-                    : Text(
-                        "Waiting for the host to start the game!",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 30.0,
+                ],
+              ),
+              bottomNavigationBar: host
+                  ? BottomNavigationBar(
+                      items: const <BottomNavigationBarItem>[
+                        BottomNavigationBarItem(
+                          icon: Icon(Icons.home),
+                          title: Text('Room'),
                         ),
-                      ),
-              ],
-            ),
-            bottomNavigationBar: host
-                ? BottomNavigationBar(
-                    items: const <BottomNavigationBarItem>[
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.home),
-                        title: Text('Room'),
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.settings),
-                        title: Text('Game Settings'),
-                      )
-                    ],
-                    onTap: (value) {
-                      if (value == 1) {
-                        gameSettings(context);
-                      }
-                    },
-                  )
-                : null,
-          );
+                        BottomNavigationBarItem(
+                          icon: Icon(Icons.settings),
+                          title: Text('Game Settings'),
+                        )
+                      ],
+                      onTap: (value) {
+                        if (value == 1) {
+                          gameSettings(context);
+                        }
+                      },
+                    )
+                  : null,
+            );
+          }
+          ;
+          return CircularProgressIndicator();
         });
   }
 
@@ -198,9 +205,9 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   }
 
   settingsSelect() {
-    TextEditingController _c = new TextEditingController();
-    TextEditingController _g = new TextEditingController();
-    TextEditingController _radius = new TextEditingController();
+    TextEditingController _c = new TextEditingController(text: '1');
+    TextEditingController _g = new TextEditingController(text: '10');
+    TextEditingController _radius = new TextEditingController(text: '100');
     String hiderSelected = selectedHider;
     return StatefulBuilder(
         builder: (BuildContext context, StateSetter setLocalState) {
