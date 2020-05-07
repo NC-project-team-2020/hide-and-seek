@@ -342,7 +342,11 @@ class _MapPageState extends State<MapPage> {
     final result = await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => Chat(),
+          builder: (context) => Chat(
+              socketIO: socketIO,
+              userName: userName,
+              hiderID: hiderID,
+              roomPass: roomPass),
         ));
     if (result != null) {
       setState(() {
@@ -355,7 +359,11 @@ class _MapPageState extends State<MapPage> {
     final result = await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => Clues(),
+          builder: (context) => Clues(
+              socketIO: socketIO,
+              userName: userName,
+              hiderID: hiderID,
+              roomPass: roomPass),
         ));
     if (result != null) {
       setState(() {
