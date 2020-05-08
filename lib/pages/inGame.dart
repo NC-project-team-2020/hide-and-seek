@@ -55,6 +55,8 @@ class _MapPageState extends State<MapPage> {
   double radiusMeterage = 1;
   LatLng radiusLatLng = LatLng(55.3780518, -3.4359729);
   bool showFindButton = false;
+  String confirmFindMsg;
+  bool showConfirmPopup;
 
   Future<void> setHidingPoint(dynamic data) async {
     _startTimer.cancel();
@@ -129,8 +131,8 @@ class _MapPageState extends State<MapPage> {
     return "$minutesStr:$secondsStr";
   }
 
-  setShowFindButton(bool boolean){
-    setState((){
+  setShowFindButton(bool boolean) {
+    setState(() {
       showFindButton = boolean;
     });
   }
@@ -170,11 +172,64 @@ class _MapPageState extends State<MapPage> {
       _current = difTime.inSeconds;
       socketIO.subscribe("startSeek", setHidingPoint);
       socketIO.subscribe("hiderPosition", getHidingPoint);
+      socketIO.subscribe("confirmFind", confirmFind);
+      socketIO.subscribe("endGame", endGame);
+      // socketIO.subscribe("confirmFindReply", confirmFindReply);
     });
     if (!hiderTimeStart) {
       hiderTimeStart = true;
       startTimer(hiderTime);
     }
+  }
+
+  endGame(dynamic data) {
+    final Map body = convert.jsonDecode(data);
+    Map<String, dynamic> arguments = {
+      'socketIO': socketIO,
+      'winner': body['winner']
+    };
+    Navigator.pushNamed(context, '/lobby-room', arguments: arguments);
+  }
+
+  confirmFind(dynamic data) {
+    if (userName == selectedHider) {
+      final Map body = convert.jsonDecode(data);
+
+      confirmFindMsg = body['msg'];
+      String seeker = body['userName'];
+      showConfirmPopup = true;
+      confirmFindDialog(context).then((value) {
+        if (value == true) {
+          socketIO.sendMessage(
+              "endGame", '{ "winner": $seeker, "roomPass": "$roomPass"}');
+        }
+      });
+    }
+  }
+
+  confirmFindDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(confirmFindMsg),
+          actions: <Widget>[
+            MaterialButton(
+                elevation: 5.0,
+                child: Text('Deny'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                }),
+            MaterialButton(
+                elevation: 5.0,
+                child: Text('Confirm'),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                }),
+          ],
+        );
+      },
+    );
   }
 
   getHidingPoint(dynamic data) {
@@ -200,7 +255,7 @@ class _MapPageState extends State<MapPage> {
               radiusLatLng: radiusLatLng,
               hidingPoint: hidingPoint,
               userName: userName,
-              selectedHider: selectedHider
+              selectedHider: selectedHider,
               setShowFindButton: setShowFindButton),
           Align(
             alignment: Alignment.topCenter,
@@ -231,8 +286,9 @@ class _MapPageState extends State<MapPage> {
                   ),
                 )
               : Container(),
-          userName != selectedHider && showFindButton ? Align(
-            alignment: Alignment.bottomLeft,
+          userName != selectedHider && showFindButton
+              ? Align(
+                  alignment: Alignment.bottomLeft,
                   child: Padding(
                     padding: const EdgeInsets.all(15.0),
                     child: RaisedButton(
@@ -240,10 +296,12 @@ class _MapPageState extends State<MapPage> {
                         color: Colors.yellow[600],
                         onPressed: () {
                           print("found");
-                          // socketIO.sendMessage("startSeek",
-                          //     '{ "seekTime": $seekerTime, "roomPass": "$roomPass"}');
+                          socketIO.sendMessage("confirmFind",
+                              '{ "userName": "$userName", "roomPass": "$roomPass"}');
                         }),
-                  ),) : Container(),
+                  ),
+                )
+              : Container(),
           Align(
             alignment: Alignment.bottomRight,
             child: Padding(

@@ -19,6 +19,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   int radiusMeterage;
   String elapsedTime = '';
   String selectedHider;
+  String winner = null;
   bool host = false;
   bool startStop = false;
   String userName;
@@ -27,8 +28,9 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   SocketIO socketIO;
   var radiusLat;
   var radiusLon;
+  bool setArgsFlag = true;
 
-  Future<Null> getSharedPrefs() async {
+  Future<void> getSharedPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userName = prefs.getString("user_name");
     userID = prefs.getString("user_id");
@@ -72,11 +74,21 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     }
   }
 
+  setArgs(args) {
+    setState(() {
+      socketIO = args["socketIO"];
+      socketIO.subscribe("usersUpdate", _handleUpdate);
+      socketIO.subscribe("startGame", launchGame);
+      winner = args["winner"];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    socketIO = ModalRoute.of(context).settings.arguments;
-    socketIO.subscribe("usersUpdate", _handleUpdate);
-    socketIO.subscribe("startGame", launchGame);
+    if (setArgsFlag) {
+      setArgsFlag = false;
+      setArgs(ModalRoute.of(context).settings.arguments);
+    }
 
     return FutureBuilder(
         future: getSharedPrefs(),
@@ -117,14 +129,22 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: ListTile(
-                                title: Text(
-                                  playerIndex == selectedHider
-                                      ? "$userName is the hider"
-                                      : userName,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 30.0,
+                                title: RichText(
+                                  text: TextSpan(
+                                    style: Theme.of(context).textTheme.body1,
+                                    children: [
+                                      winner == userName
+                                          ? WidgetSpan(
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 2.0),
+                                                child: Icon(Icons.stars),
+                                              ),
+                                            )
+                                          : TextSpan(text: ' '),
+                                      TextSpan(text: userName),
+                                    ],
                                   ),
                                 ),
                                 onTap: () {

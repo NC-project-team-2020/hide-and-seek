@@ -52,7 +52,8 @@ class _LobbyPageState extends State<LobbyPage> {
     prefs.setString('roomPass', host ? body["roomPassword"] : roomPass);
     prefs.setString('users', convert.jsonEncode(body["users"]));
     prefs.setBool('host', host);
-    Navigator.pushNamed(context, '/lobby-room', arguments: socketIO);
+    Map<String, dynamic> arguments = {'socketIO': socketIO, 'winner': null};
+    Navigator.pushNamed(context, '/lobby-room', arguments: arguments);
   }
 
   @override
