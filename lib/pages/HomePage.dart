@@ -47,11 +47,10 @@ class _HomePageState extends State<HomePage> {
           ModalRoute.withName("/"),
         );
       } else {
+        final Map body = convert.jsonDecode(response.body);
         final failedSnackBar = SnackBar(
           backgroundColor: Colors.red[500],
-          content: Text(
-            'Invalid login',
-          ),
+          content: Text(body['msg']),
         );
         _scaffoldKey.currentState.showSnackBar(failedSnackBar);
       }
@@ -85,7 +84,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       validator: (value) {
                         if (value.isEmpty) {
-                          return 'Please enter some text';
+                          return 'Please enter your username';
                         }
                         return null;
                       },
@@ -99,7 +98,7 @@ class _HomePageState extends State<HomePage> {
                         labelText: 'Password',
                       ),
                       validator: (value) =>
-                          value.isEmpty ? 'The field can\'t be empty' : null,
+                          value.isEmpty ? 'Please enter your password' : null,
                     ),
                     SizedBox(height: 15.0),
                     SizedBox(

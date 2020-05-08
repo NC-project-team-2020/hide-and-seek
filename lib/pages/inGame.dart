@@ -65,7 +65,8 @@ class _MapPageState extends State<MapPage> {
     LocationData hidingLocation = await _locationTracker.getLocation();
     var hidingLat = hidingLocation.latitude;
     var hidingLon = hidingLocation.longitude;
-    socketIO.sendMessage("hiderPosition", '{ "user_name": $userName, "user_id": $userID, "longitude": $hidingLon, "latitude": $hidingLat", roomPass": "$roomPass"}')
+    socketIO.sendMessage("hiderPosition",
+        '{ "user_name": $userName, "user_id": $userID, "longitude": $hidingLon, "latitude": $hidingLat", roomPass": "$roomPass"}');
     setState(() {
       hidingPoint = LatLng(hidingLocation.latitude, hidingLocation.longitude);
       seekerTime = difTime.inSeconds;
@@ -163,7 +164,7 @@ class _MapPageState extends State<MapPage> {
     hiderTime = difTime.inSeconds;
     _current = difTime.inSeconds;
     socketIO.subscribe("startSeek", setHidingPoint);
-        socketIO.subscribe("hiderPosition", getHidingPoint);
+    socketIO.subscribe("hiderPosition", getHidingPoint);
 
     if (!hiderTimeStart) {
       hiderTimeStart = true;
@@ -171,13 +172,13 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
-  getHidingPoint (dynamic data) {
+  getHidingPoint(dynamic data) {
+    print('Hejehej funkar detta?');
     final Map body = convert.jsonDecode(data);
     double hidingLat = int.parse(body["latitude"]).toDouble();
     double hidingLon = int.parse(body["longitude"]).toDouble();
     hidingPoint = LatLng(hidingLat, hidingLon);
     print(hidingPoint);
-
   }
 
   @override
@@ -190,7 +191,9 @@ class _MapPageState extends State<MapPage> {
       key: _drawerKey,
       body: Stack(
         children: <Widget>[
-          InGameMap(followWithCamera: followWithCamera, radiusMeterage: radiusMeterage),
+          InGameMap(
+              followWithCamera: followWithCamera,
+              radiusMeterage: radiusMeterage),
           Align(
             alignment: Alignment.topCenter,
             child: Padding(
