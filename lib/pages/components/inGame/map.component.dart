@@ -4,16 +4,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:geolocator/geolocator.dart';
 import 'dart:ui' as ui;
 
 class InGameMap extends StatefulWidget {
   InGameMap(
-      {Key key, this.followWithCamera, this.radiusMeterage, this.radiusLatLng})
+      {Key key,
+      this.followWithCamera,
+      this.radiusMeterage,
+      this.radiusLatLng,
+      this.hidingPoint,
+      this.userName,
+      this.selectedHider,
+      this.setShowFindButton})
       : super(key: key);
 
   final bool followWithCamera;
   final double radiusMeterage;
   final LatLng radiusLatLng;
+  final LatLng hidingPoint;
+  final String userName;
+  final String selectedHider;
+  final Function setShowFindButton;
   @override
   _InGameMapState createState() => _InGameMapState();
 }
@@ -26,6 +38,7 @@ class _InGameMapState extends State<InGameMap> {
   String _mapStyle;
   double radiusMeterage;
   LatLng radiusLatLng;
+  double distanceInMeters;
 
   StreamSubscription _locationSubscription;
   Location _locationTracker = Location();
@@ -92,7 +105,7 @@ class _InGameMapState extends State<InGameMap> {
       }
 
       _locationSubscription =
-          _locationTracker.onLocationChanged().listen((newLocalData) {
+          _locationTracker.onLocationChanged().listen((newLocalData) async {
         if (_controller != null) {
           if (widget.followWithCamera) {
             _controller.animateCamera(
@@ -108,6 +121,22 @@ class _InGameMapState extends State<InGameMap> {
             );
           }
           updateMarkerAndCircle(newLocalData, hiderImage, seekerImage);
+
+          if (widget.selectedHider != widget.userName) {
+            double hidingLat = widget.hidingPoint.latitude;
+            double hidingLon = widget.hidingPoint.longitude;
+            distanceInMeters = await Geolocator().distanceBetween(
+                newLocalData.latitude,
+                newLocalData.longitude,
+                hidingLat,
+                hidingLon);
+            print(distanceInMeters);
+            if (distanceInMeters < 20) {
+              widget.setShowFindButton(true);
+            } else {
+              widget.setShowFindButton(false);
+            }
+          }
         }
       });
     } on PlatformException catch (e) {
