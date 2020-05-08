@@ -255,8 +255,11 @@ class _MapPageState extends State<MapPage> {
               radiusLatLng: radiusLatLng,
               hidingPoint: hidingPoint,
               userName: userName,
+              userID: userID,
               selectedHider: selectedHider,
-              setShowFindButton: setShowFindButton),
+              setShowFindButton: setShowFindButton,
+              socketIO: socketIO,
+              roomPass: roomPass),
           Align(
             alignment: Alignment.topCenter,
             child: Padding(
