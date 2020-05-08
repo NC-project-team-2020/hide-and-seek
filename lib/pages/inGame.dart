@@ -66,8 +66,10 @@ class _MapPageState extends State<MapPage> {
     LocationData hidingLocation = await _locationTracker.getLocation();
     var hidingLat = hidingLocation.latitude;
     var hidingLon = hidingLocation.longitude;
-    socketIO.sendMessage("hiderPosition",
-        '{ "user_name": $userName, "user_id": $userID, "longitude": $hidingLon, "latitude": $hidingLat", roomPass": "$roomPass"}');
+    if (selectedHider == userName) {
+      socketIO.sendMessage("hiderPosition",
+          '{ "user_name": $userName, "user_id": $userID, "longitude": $hidingLon, "latitude": $hidingLat", roomPass": "$roomPass"}');
+    }
     setState(() {
       hidingPoint = LatLng(hidingLocation.latitude, hidingLocation.longitude);
       seekerTime = difTime.inSeconds;
@@ -170,11 +172,17 @@ class _MapPageState extends State<MapPage> {
 
   getHidingPoint(dynamic data) {
     print('Hejehej funkar detta?');
-    final Map body = convert.jsonDecode(data);
-    double hidingLat = int.parse(body["latitude"]).toDouble();
-    double hidingLon = int.parse(body["longitude"]).toDouble();
-    hidingPoint = LatLng(hidingLat, hidingLon);
-    print(hidingPoint);
+    try {
+      final Map body = convert.jsonDecode(data);
+      double hidingLat = double.parse(body["latitude"]);
+      double hidingLon = double.parse(body["longitude"]);
+      hidingPoint = LatLng(hidingLat, hidingLon);
+      print('vi kom hit');
+      print(body);
+      print(hidingPoint);
+    } catch (err) {
+      print(err);
+    }
   }
 
   @override
