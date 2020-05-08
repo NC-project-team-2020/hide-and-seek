@@ -219,7 +219,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   settingsSelect() {
     TextEditingController _c = new TextEditingController(text: '1');
     TextEditingController _g = new TextEditingController(text: '10');
-    TextEditingController _radius = new TextEditingController(text: '100');
+    TextEditingController _radius = new TextEditingController(text: '300');
     String hiderSelected = selectedHider;
     return StatefulBuilder(
         builder: (BuildContext context, StateSetter setLocalState) {

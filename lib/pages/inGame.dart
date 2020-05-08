@@ -51,9 +51,10 @@ class _MapPageState extends State<MapPage> {
   bool startStopSeek = false;
 
   //GameData
-  LatLng hidingPoint;
+  LatLng hidingPoint = LatLng(55.3780518, -3.4359729);
   double radiusMeterage = 1;
   LatLng radiusLatLng = LatLng(55.3780518, -3.4359729);
+  bool showFindButton = false;
 
   Future<void> setHidingPoint(dynamic data) async {
     _startTimer.cancel();
@@ -68,7 +69,11 @@ class _MapPageState extends State<MapPage> {
     var hidingLon = hidingLocation.longitude;
     if (selectedHider == userName) {
       socketIO.sendMessage("hiderPosition",
+<<<<<<< HEAD
           '{ "user_name": $userName, "user_id": $userID, "longitude": $hidingLon, "latitude": $hidingLat", roomPass": "$roomPass"}');
+=======
+          '{ "user_name": "$userName", "user_id": "$userID", "longitude": "$hidingLon", "latitude": "$hidingLat", "roomPass": "$roomPass"}');
+>>>>>>> 2ccad04c94ed441eabf7a18b4658a55771bd6eb7
     }
     setState(() {
       hidingPoint = LatLng(hidingLocation.latitude, hidingLocation.longitude);
@@ -128,6 +133,12 @@ class _MapPageState extends State<MapPage> {
     return "$minutesStr:$secondsStr";
   }
 
+  setShowFindButton(bool boolean){
+    setState((){
+      showFindButton = boolean;
+    });
+  }
+
   @override
   void initState() {
     SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
@@ -171,6 +182,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   getHidingPoint(dynamic data) {
+<<<<<<< HEAD
     print('Hejehej funkar detta?');
     try {
       final Map body = convert.jsonDecode(data);
@@ -183,6 +195,12 @@ class _MapPageState extends State<MapPage> {
     } catch (err) {
       print(err);
     }
+=======
+    final Map body = convert.jsonDecode(data);
+    double hidingLat = double.parse(body["latitude"]);
+    double hidingLon = double.parse(body["longitude"]);
+    hidingPoint = LatLng(hidingLat, hidingLon);
+>>>>>>> 2ccad04c94ed441eabf7a18b4658a55771bd6eb7
   }
 
   @override
@@ -198,7 +216,11 @@ class _MapPageState extends State<MapPage> {
           InGameMap(
               followWithCamera: followWithCamera,
               radiusMeterage: radiusMeterage,
-              radiusLatLng: radiusLatLng),
+              radiusLatLng: radiusLatLng,
+              hidingPoint: hidingPoint,
+              userName: userName,
+              selectedHider: selectedHider
+              setShowFindButton: setShowFindButton),
           Align(
             alignment: Alignment.topCenter,
             child: Padding(
@@ -228,6 +250,19 @@ class _MapPageState extends State<MapPage> {
                   ),
                 )
               : Container(),
+          userName != selectedHider && showFindButton ? Align(
+            alignment: Alignment.bottomLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: RaisedButton(
+                        child: Text('Found Hider'),
+                        color: Colors.yellow[600],
+                        onPressed: () {
+                          print("found");
+                          // socketIO.sendMessage("startSeek",
+                          //     '{ "seekTime": $seekerTime, "roomPass": "$roomPass"}');
+                        }),
+                  ),) : Container(),
           Align(
             alignment: Alignment.bottomRight,
             child: Padding(
