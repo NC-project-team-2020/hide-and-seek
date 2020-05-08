@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:quiver/async.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_socket_io/flutter_socket_io.dart';
+import 'package:location/location.dart';
 import 'dart:convert' as convert;
 
 class Lobby extends StatefulWidget {
@@ -24,6 +25,8 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   String userID;
   String roomPass;
   SocketIO socketIO;
+  var radiusLat;
+  var radiusLon;
 
   Future<Null> getSharedPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -32,6 +35,13 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     roomPass = prefs.getString("roomPass");
     host = prefs.getBool("host");
     _players = convert.jsonDecode(prefs.getString("users"));
+
+    if (host) {
+      Location _locationTracker = Location();
+      var location = await _locationTracker.getLocation();
+      radiusLat = location.latitude;
+      radiusLon = location.longitude;
+    }
   }
 
   void _handleUpdate(dynamic data) async {
@@ -51,7 +61,9 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
         'socketIO': socketIO,
         "seekTime": seekTime,
         "hideTime": body["hideTime"],
-        "radiusMeterage": radiusMeterage,
+        "radiusMeterage": body["radiusMetres"],
+        "radiusLat": body["latitude"],
+        "radiusLon": body["longitude"],
         "selectedHider": selectedHider
       };
       Navigator.pushNamed(context, '/in-game', arguments: arguments);
@@ -128,7 +140,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                             onPressed: () => startStop
                                 ? null
                                 : socketIO.sendMessage("startGame",
-                                    '{ "hideTime": "$hideTime", "roomPass": "$roomPass"}'),
+                                    '{ "hideTime": "$hideTime", "roomPass": "$roomPass", "latitude": "$radiusLat", "longitude": "$radiusLon", "radiusMetres": "$radiusMeterage" }'),
                             child: Text(
                               "Go Hide",
                               textAlign: TextAlign.center,

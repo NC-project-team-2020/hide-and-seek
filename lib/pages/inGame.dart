@@ -53,6 +53,7 @@ class _MapPageState extends State<MapPage> {
   //GameData
   LatLng hidingPoint;
   int radiusMeterage;
+  LatLng radiusLatLng;
 
   Future<void> setHidingPoint(dynamic data) async {
     _startTimer.cancel();
@@ -145,6 +146,7 @@ class _MapPageState extends State<MapPage> {
     _players = convert.jsonDecode(prefs.getString("users"));
     seekerTime = args['seekTime'];
     radiusMeterage = args['radiusMeterage'];
+    radiusLatLng = LatLng(args['radiusLat'], args['radiusLon']);
     selectedHider = args['selectedHider'];
     socketIO = args['socketIO'];
     var hide = DateTime.parse(args['hideTime']);
@@ -182,7 +184,8 @@ class _MapPageState extends State<MapPage> {
         children: <Widget>[
           InGameMap(
               followWithCamera: followWithCamera,
-              radiusMeterage: radiusMeterage),
+              radiusMeterage: radiusMeterage,
+              radiusLatLng: radiusLatLng),
           Align(
             alignment: Alignment.topCenter,
             child: Padding(

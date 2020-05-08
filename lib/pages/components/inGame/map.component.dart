@@ -7,11 +7,13 @@ import 'package:location/location.dart';
 import 'dart:ui' as ui;
 
 class InGameMap extends StatefulWidget {
-  InGameMap({Key key, this.followWithCamera, this.radiusMeterage})
+  InGameMap(
+      {Key key, this.followWithCamera, this.radiusMeterage, this.radiusLatLng})
       : super(key: key);
 
   final bool followWithCamera;
   final int radiusMeterage;
+  final LatLng radiusLatLng;
 
   @override
   _InGameMapState createState() => _InGameMapState();
@@ -73,7 +75,7 @@ class _InGameMapState extends State<InGameMap> {
           radius: widget.radiusMeterage.toDouble(),
           zIndex: 1,
           strokeColor: Colors.red,
-          center: LatLng(location.latitude, location.longitude),
+          center: widget.radiusLatLng,
           fillColor: Colors.red.withAlpha(30));
       Uint8List hiderImage =
           await getBytesFromAsset('assets/hider_marker.png', 100);
