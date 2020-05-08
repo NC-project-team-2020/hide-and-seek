@@ -12,7 +12,7 @@ class InGameMap extends StatefulWidget {
       : super(key: key);
 
   final bool followWithCamera;
-  final int radiusMeterage;
+  final double radiusMeterage;
   final LatLng radiusLatLng;
 
   @override
@@ -72,7 +72,7 @@ class _InGameMapState extends State<InGameMap> {
       var location = await _locationTracker.getLocation();
       circle = Circle(
           circleId: CircleId("hiding-area"),
-          radius: widget.radiusMeterage.toDouble(),
+          radius: widget.radiusMeterage,
           zIndex: 1,
           strokeColor: Colors.red,
           center: widget.radiusLatLng,

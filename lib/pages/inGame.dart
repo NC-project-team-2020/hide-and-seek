@@ -52,8 +52,8 @@ class _MapPageState extends State<MapPage> {
 
   //GameData
   LatLng hidingPoint;
-  int radiusMeterage;
-  LatLng radiusLatLng;
+  double radiusMeterage = 1;
+  LatLng radiusLatLng = LatLng(55.3780518, -3.4359729);
 
   Future<void> setHidingPoint(dynamic data) async {
     _startTimer.cancel();
@@ -139,23 +139,28 @@ class _MapPageState extends State<MapPage> {
 
   setArgs(dynamic args) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    userName = prefs.getString("user_name");
-    userID = prefs.getString("user_id");
-    roomPass = prefs.getString("roomPass");
-    host = prefs.getBool("host");
-    _players = convert.jsonDecode(prefs.getString("users"));
-    seekerTime = args['seekTime'];
-    radiusMeterage = args['radiusMeterage'];
-    radiusLatLng = LatLng(args['radiusLat'], args['radiusLon']);
-    selectedHider = args['selectedHider'];
-    socketIO = args['socketIO'];
-    var hide = DateTime.parse(args['hideTime']);
-    var now = new DateTime.now();
-    var difTime = hide.difference(now);
-    hiderTime = difTime.inSeconds;
-    _current = difTime.inSeconds;
-    socketIO.subscribe("startSeek", setHidingPoint);
-    socketIO.subscribe("hiderPosition", getHidingPoint);
+    setState(() {
+      userName = prefs.getString("user_name");
+      userID = prefs.getString("user_id");
+      roomPass = prefs.getString("roomPass");
+      host = prefs.getBool("host");
+      _players = convert.jsonDecode(prefs.getString("users"));
+      seekerTime = args['seekTime'];
+      radiusMeterage = double.parse(args['radiusMeterage']);
+      print(radiusMeterage);
+      double radiusLat = double.parse(args['radiusLat']);
+      double radiusLon = double.parse(args['radiusLon']);
+      radiusLatLng = LatLng(radiusLat, radiusLon);
+      selectedHider = args['selectedHider'];
+      socketIO = args['socketIO'];
+      var hide = DateTime.parse(args['hideTime']);
+      var now = new DateTime.now();
+      var difTime = hide.difference(now);
+      hiderTime = difTime.inSeconds;
+      _current = difTime.inSeconds;
+      socketIO.subscribe("startSeek", setHidingPoint);
+      socketIO.subscribe("hiderPosition", getHidingPoint);
+    });
 
     if (!hiderTimeStart) {
       hiderTimeStart = true;
