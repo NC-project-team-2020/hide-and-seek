@@ -52,14 +52,6 @@ class _InGameMapState extends State<InGameMap> {
           zIndex: 2,
           anchor: Offset(0.5, 0.5),
           icon: BitmapDescriptor.fromBytes(seekerImage));
-
-      circle = Circle(
-          circleId: CircleId("hiding-area"),
-          radius: widget.radiusMeterage.toDouble(),
-          zIndex: 1,
-          strokeColor: Colors.red,
-          center: LatLng(54.882690, -2.930539),
-          fillColor: Colors.red.withAlpha(30));
     });
   }
 
@@ -75,11 +67,18 @@ class _InGameMapState extends State<InGameMap> {
 
   void getCurrentLocation() async {
     try {
+      var location = await _locationTracker.getLocation();
+      circle = Circle(
+          circleId: CircleId("hiding-area"),
+          radius: widget.radiusMeterage.toDouble(),
+          zIndex: 1,
+          strokeColor: Colors.red,
+          center: LatLng(location.latitude, location.longitude),
+          fillColor: Colors.red.withAlpha(30));
       Uint8List hiderImage =
           await getBytesFromAsset('assets/hider_marker.png', 100);
       Uint8List seekerImage =
           await getBytesFromAsset('assets/seeker_marker.png', 100);
-      var location = await _locationTracker.getLocation();
       updateMarkerAndCircle(location, hiderImage, seekerImage);
 
       if (_locationSubscription != null) {
