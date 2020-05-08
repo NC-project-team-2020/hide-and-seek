@@ -92,11 +92,7 @@ class _MapPageState extends State<MapPage> {
             timer.cancel();
           } else {
             _current = _current - 1;
-            print("current time");
-            print(_current);
             elapsedTime = transformSeconds(_current);
-            print("elapased time");
-            print(elapsedTime);
           }
         },
       ),
@@ -113,11 +109,7 @@ class _MapPageState extends State<MapPage> {
             timer.cancel();
           } else {
             _currentSeek = _currentSeek - 1;
-            print("current time");
-            print(_currentSeek);
             elapsedTimeSeek = transformSeconds(_currentSeek);
-            print("elapased time");
-            print(elapsedTimeSeek);
           }
         },
       ),
@@ -135,7 +127,6 @@ class _MapPageState extends State<MapPage> {
 
   @override
   void initState() {
-    print('initState');
     SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
     super.initState();
   }
@@ -146,14 +137,12 @@ class _MapPageState extends State<MapPage> {
   }
 
   setArgs(dynamic args) async {
-    print("setArgs");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userName = prefs.getString("user_name");
     userID = prefs.getString("user_id");
     roomPass = prefs.getString("roomPass");
     host = prefs.getBool("host");
     _players = convert.jsonDecode(prefs.getString("users"));
-    print(args);
     seekerTime = args['seekTime'];
     radiusMeterage = args['radiusMeterage'];
     selectedHider = args['selectedHider'];
@@ -173,6 +162,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   getHidingPoint(dynamic data) {
+    print('Hejehej funkar detta?');
     final Map body = convert.jsonDecode(data);
     double hidingLat = int.parse(body["latitude"]).toDouble();
     double hidingLon = int.parse(body["longitude"]).toDouble();
@@ -294,7 +284,11 @@ class _MapPageState extends State<MapPage> {
     final result = await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => Chat(),
+          builder: (context) => Chat(
+              socketIO: socketIO,
+              userName: userName,
+              hiderID: selectedHider,
+              roomPass: roomPass),
         ));
     if (result != null) {
       setState(() {
@@ -307,7 +301,11 @@ class _MapPageState extends State<MapPage> {
     final result = await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => Clues(),
+          builder: (context) => Clues(
+              socketIO: socketIO,
+              userName: userName,
+              hiderID: selectedHider,
+              roomPass: roomPass),
         ));
     if (result != null) {
       setState(() {

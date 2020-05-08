@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:hideandseek/pages/components/chat/chatCard.dart';
 
-chatHistory(List chatHistory) {
+chatHistory(List chatHistory, user_name) {
+  print('this is chat');
   return ListView.builder(
     itemCount: chatHistory.length,
     itemBuilder: (context, index) {
       final chat = chatHistory[index];
+      print(chat);
       return Row(
         children: <Widget>[
           Expanded(
-              flex: chat['written_by'] == 'User1' ? 2 : 8,
-              child: chat['written_by'] == 'User1'
+              flex: chat['written_by'] == user_name ? 2 : 8,
+              child: chat['written_by'] == user_name
                   ? Container()
                   : card(chat, false)),
           Expanded(
-            flex: chat['written_by'] == 'User1' ? 8 : 2,
-            child:
-                chat['written_by'] == 'User1' ? card(chat, true) : Container(),
+            flex: chat['written_by'] == user_name ? 8 : 2,
+            child: chat['written_by'] == user_name
+                ? card(chat, true)
+                : Container(),
           )
         ],
       );
