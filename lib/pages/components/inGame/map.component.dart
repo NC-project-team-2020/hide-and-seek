@@ -24,6 +24,8 @@ class _InGameMapState extends State<InGameMap> {
   Circle circle;
   GoogleMapController _controller;
   String _mapStyle;
+  double radiusMeterage;
+  LatLng radiusLatLng;
 
   StreamSubscription _locationSubscription;
   Location _locationTracker = Location();
@@ -53,6 +55,13 @@ class _InGameMapState extends State<InGameMap> {
           zIndex: 2,
           anchor: Offset(0.5, 0.5),
           icon: BitmapDescriptor.fromBytes(seekerImage));
+      circle = Circle(
+          circleId: CircleId("hiding-area"),
+          radius: widget.radiusMeterage,
+          zIndex: 1,
+          strokeColor: Colors.red,
+          center: widget.radiusLatLng,
+          fillColor: Colors.red.withAlpha(30));
     });
   }
 
@@ -69,13 +78,9 @@ class _InGameMapState extends State<InGameMap> {
   void getCurrentLocation() async {
     try {
       var location = await _locationTracker.getLocation();
-      circle = Circle(
-          circleId: CircleId("hiding-area"),
-          radius: widget.radiusMeterage,
-          zIndex: 1,
-          strokeColor: Colors.red,
-          center: widget.radiusLatLng,
-          fillColor: Colors.red.withAlpha(30));
+      print("widget.radiusMeterage");
+      print(widget.radiusMeterage);
+
       Uint8List hiderImage =
           await getBytesFromAsset('assets/hider_marker.png', 100);
       Uint8List seekerImage =
@@ -118,7 +123,20 @@ class _InGameMapState extends State<InGameMap> {
     rootBundle.loadString('assets/map_style.txt').then((string) {
       _mapStyle = string;
     });
+    radiusMeterage = widget.radiusMeterage;
+    radiusLatLng = widget.radiusLatLng;
     getCurrentLocation();
+  }
+
+  @override
+  void didUpdateWidget(InGameMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.radiusMeterage != oldWidget.radiusMeterage) {
+      setState(() {
+        radiusMeterage = widget.radiusMeterage;
+        radiusLatLng = widget.radiusLatLng;
+      });
+    }
   }
 
   void dispose() {
