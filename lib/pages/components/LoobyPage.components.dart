@@ -5,7 +5,6 @@ import 'package:hideandseek/requests.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:image/image.dart' as imageUtils;
 
 createRoomDialog(BuildContext context) {
   TextEditingController customController = TextEditingController();
@@ -89,6 +88,7 @@ class __UserProfileBodyState extends State<_UserProfileBody> {
   var avatar;
   SharedPreferences preferences;
   bool isLoading = false;
+  String userName;
   @override
   Widget build(BuildContext context) {
     String color = "0xffb8b8b8";
@@ -151,7 +151,7 @@ class __UserProfileBodyState extends State<_UserProfileBody> {
                   ),
                   SizedBox(height: 20.0),
                   Text(
-                    'hannes.tagerud',
+                    userName,
                     style: TextStyle(fontSize: 20, letterSpacing: 2.0),
                   ),
                 ],
@@ -192,6 +192,7 @@ class __UserProfileBodyState extends State<_UserProfileBody> {
   Future<void> getAvatar() async {
     preferences = await SharedPreferences.getInstance();
     List<String> avatarStrList = preferences.getStringList('avatar');
+    userName = preferences.getString('user_name');
     List<int> avatarListInt = avatarStrList.map(int.parse).toList();
     avatar = Uint8List.fromList(avatarListInt);
   }
