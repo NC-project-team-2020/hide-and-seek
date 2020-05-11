@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter_socket_io/flutter_socket_io.dart';
 import 'dart:ui' as ui;
+import 'dart:convert' as convert;
 
 class InGameMap extends StatefulWidget {
   InGameMap(
@@ -15,8 +17,11 @@ class InGameMap extends StatefulWidget {
       this.radiusLatLng,
       this.hidingPoint,
       this.userName,
+      this.userID,
       this.selectedHider,
-      this.setShowFindButton})
+      this.setShowFindButton,
+      this.socketIO,
+      this.roomPass})
       : super(key: key);
 
   final bool followWithCamera;
@@ -24,8 +29,11 @@ class InGameMap extends StatefulWidget {
   final LatLng radiusLatLng;
   final LatLng hidingPoint;
   final String userName;
+  final String userID;
   final String selectedHider;
   final Function setShowFindButton;
+  final SocketIO socketIO;
+  final String roomPass;
   @override
   _InGameMapState createState() => _InGameMapState();
 }
@@ -53,21 +61,6 @@ class _InGameMapState extends State<InGameMap> {
       LocationData newLocalData, Uint8List hiderImage, Uint8List seekerImage) {
     LatLng latlng = LatLng(newLocalData.latitude, newLocalData.longitude);
     this.setState(() {
-      hider = Marker(
-          markerId: MarkerId("hider"),
-          position: latlng,
-          draggable: false,
-          zIndex: 2,
-          anchor: Offset(0.5, 0.5),
-          icon: BitmapDescriptor.fromBytes(hiderImage));
-
-      seeker = Marker(
-          markerId: MarkerId("seeker"),
-          position: LatLng(54.883211, -2.928458),
-          draggable: false,
-          zIndex: 2,
-          anchor: Offset(0.5, 0.5),
-          icon: BitmapDescriptor.fromBytes(seekerImage));
       circle = Circle(
           circleId: CircleId("hiding-area"),
           radius: widget.radiusMeterage,
@@ -123,13 +116,17 @@ class _InGameMapState extends State<InGameMap> {
           updateMarkerAndCircle(newLocalData, hiderImage, seekerImage);
 
           if (widget.selectedHider != widget.userName) {
+            double curLat = newLocalData.latitude;
+            double curLon = newLocalData.longitude;
+            String userID = widget.userID;
+            String userName = widget.userName;
+            String roomPass = widget.roomPass;
+            widget.socketIO.sendMessage("seekerPosition",
+                '{ "user_id": "$userID", "user_name": "$userName", "roomPass": "$roomPass", "latitude": "$curLat", "longitude": "$curLon"}');
             double hidingLat = widget.hidingPoint.latitude;
             double hidingLon = widget.hidingPoint.longitude;
-            distanceInMeters = await Geolocator().distanceBetween(
-                newLocalData.latitude,
-                newLocalData.longitude,
-                hidingLat,
-                hidingLon);
+            distanceInMeters = await Geolocator()
+                .distanceBetween(curLat, curLon, hidingLat, hidingLon);
             print(distanceInMeters);
             if (distanceInMeters < 20) {
               widget.setShowFindButton(true);
@@ -146,12 +143,38 @@ class _InGameMapState extends State<InGameMap> {
     }
   }
 
+  handleSeekerPosition(dynamic data) async {
+    print(data);
+    print("here");
+    try {
+      Uint8List seekerImage =
+          await getBytesFromAsset('assets/seeker_marker.png', 100);
+      final Map body = convert.jsonDecode(data);
+      double seekerLat = double.parse(body['latitude']);
+      double seekerLon = double.parse(body['longitude']);
+      setState(() {
+        seeker = Marker(
+            markerId: MarkerId("seeker"),
+            position: LatLng(seekerLat, seekerLon),
+            draggable: false,
+            zIndex: 2,
+            anchor: Offset(0.5, 0.5),
+            icon: BitmapDescriptor.fromBytes(seekerImage));
+      });
+    } catch (err) {
+      print(err);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     rootBundle.loadString('assets/map_style.txt').then((string) {
       _mapStyle = string;
     });
+    if (widget.selectedHider == widget.userName) {
+      // widget.socketIO.subscribe("seekerPosition", handleSeekerPosition);
+    }
     radiusMeterage = widget.radiusMeterage;
     radiusLatLng = widget.radiusLatLng;
     getCurrentLocation();
