@@ -91,6 +91,8 @@ class __UserProfileBodyState extends State<_UserProfileBody> {
   bool isLoading = false;
   @override
   Widget build(BuildContext context) {
+    String color = "0xffb8b8b8";
+
     return FutureBuilder(
       future: getAvatar(),
       builder: (context, snapshot) {

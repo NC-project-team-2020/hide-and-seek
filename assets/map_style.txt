@@ -84,16 +84,10 @@
     "elementType": "geometry.fill",
     "stylers": [
       {
-        "color": "#648359"
+        "color": "#1d6500"
       },
       {
-        "saturation": -45
-      },
-      {
-        "lightness": -20
-      },
-      {
-        "visibility": "simplified"
+        "visibility": "on"
       }
     ]
   },

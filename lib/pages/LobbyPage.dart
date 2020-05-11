@@ -123,7 +123,7 @@ class _LobbyPageState extends State<LobbyPage> {
                   width: 140.0,
                   height: 140.0,
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(12.0),
                     child: RaisedButton(
                       onPressed: () {
                         createRoomDialog(context).then((roomName) {
@@ -137,6 +137,15 @@ class _LobbyPageState extends State<LobbyPage> {
                         });
                       },
                       child: Text('Create Room'),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(40),
+                            bottomLeft: Radius.circular(40)),
+                        side: BorderSide(
+                          width: 3,
+                          color: Color(int.parse('0xff65738c')),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -144,7 +153,7 @@ class _LobbyPageState extends State<LobbyPage> {
                   width: 140.0,
                   height: 140.0,
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(12.0),
                     child: RaisedButton(
                       onPressed: () {
                         joinRoomDialog(context).then((roomID) {
@@ -160,6 +169,15 @@ class _LobbyPageState extends State<LobbyPage> {
                         });
                       },
                       child: Text('Join Room'),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(40),
+                            bottomRight: Radius.circular(40)),
+                        side: BorderSide(
+                          width: 3,
+                          color: Color(int.parse('0xff65738c')),
+                        ),
+                      ),
                     ),
                   ),
                 ),
