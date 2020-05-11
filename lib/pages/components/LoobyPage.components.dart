@@ -76,7 +76,7 @@ userProfile() {
         'User Profile',
       ),
     ),
-    backgroundColor: Color(int.parse(color)),
+    backgroundColor: Color(int.parse("0xffb8b8b8")),
     body: _UserProfileBody(),
   );
 }
@@ -103,28 +103,38 @@ class __UserProfileBodyState extends State<_UserProfileBody> {
         if (snapshot.connectionState == ConnectionState.done) {
           return Center(
             child: Padding(
-              padding: const EdgeInsets.only(top: 30.0),
+              padding: const EdgeInsets.only(top: 15.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   CircleAvatar(
-                    radius: 50.0,
-                    backgroundImage: !isLoading ? MemoryImage(avatar) : null,
-                    child: isLoading ? CircularProgressIndicator() : null,
-                    // child: Text(
-                    //   'HT',
-                    //   style: TextStyle(
-                    //       fontSize: 40.0,
-                    //       fontWeight: FontWeight.bold,
-                    //       color: Colors.white,
-                    //       letterSpacing: 4.0),
-                    // ),
-                  ),
+                      radius: 155.0,
+                      backgroundColor: Color(int.parse("0xfff2d3ab")),
+                      child: CircleAvatar(
+                        radius: 150.0,
+                        backgroundImage:
+                            !isLoading ? MemoryImage(avatar) : null,
+                        child: isLoading ? CircularProgressIndicator() : null,
+                        // child: Text(
+                        //   'HT',
+                        //   style: TextStyle(
+                        //       fontSize: 40.0,
+                        //       fontWeight: FontWeight.bold,
+                        //       color: Colors.white,
+                        //       letterSpacing: 4.0),
+                        // ),
+                      )),
                   //Need to add if statement here
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      top: 50,
+                    ),
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       RaisedButton(
+                        color: Color(int.parse("0xff272744")),
                         onPressed: () {
                           if (isLoading) {
                             return null;
@@ -140,6 +150,7 @@ class __UserProfileBodyState extends State<_UserProfileBody> {
                         width: 10.0,
                       ),
                       RaisedButton(
+                        color: Color(int.parse("0xff272744")),
                         onPressed: () {
                           if (isLoading) {
                             return null;
