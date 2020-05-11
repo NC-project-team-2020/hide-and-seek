@@ -13,6 +13,7 @@ class Lobby extends StatefulWidget {
 }
 
 class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   var _players;
   int hideTime;
   int seekTime;
@@ -95,6 +96,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return new Scaffold(
+              key: _scaffoldKey,
               appBar: new AppBar(
                 title: Text('Lobby'),
                 actions: <Widget>[
@@ -157,10 +159,23 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                       ? SizedBox(
                           height: 80.0,
                           child: RaisedButton(
-                            onPressed: () => startStop
-                                ? null
-                                : socketIO.sendMessage("startGame",
-                                    '{ "hideTime": "$hideTime", "roomPass": "$roomPass", "latitude": "$radiusLat", "longitude": "$radiusLon", "radiusMetres": "$radiusMeterage" }'),
+                            onPressed: () {
+                              if (hideTime == null ||
+                                  seekTime == null ||
+                                  radiusMeterage == null ||
+                                  selectedHider == null) {
+                                final failedSnackBar = SnackBar(
+                                  backgroundColor: Colors.red[500],
+                                  content: Text(
+                                      'Fill in the game settings (needs better wording here...'),
+                                );
+                                _scaffoldKey.currentState
+                                    .showSnackBar(failedSnackBar);
+                                return null;
+                              }
+                              socketIO.sendMessage("startGame",
+                                  '{ "hideTime": "$hideTime", "roomPass": "$roomPass", "latitude": "$radiusLat", "longitude": "$radiusLon", "radiusMetres": "$radiusMeterage" }');
+                            },
                             child: Text(
                               "Go Hide",
                               textAlign: TextAlign.center,

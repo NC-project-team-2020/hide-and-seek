@@ -71,11 +71,7 @@ class _MapPageState extends State<MapPage> {
     var hidingLon = hidingLocation.longitude;
     if (selectedHider == userName) {
       socketIO.sendMessage("hiderPosition",
-<<<<<<< HEAD
-          '{ "user_name": $userName, "user_id": $userID, "longitude": $hidingLon, "latitude": $hidingLat", roomPass": "$roomPass"}');
-=======
           '{ "user_name": "$userName", "user_id": "$userID", "longitude": "$hidingLon", "latitude": "$hidingLat", "roomPass": "$roomPass"}');
->>>>>>> 2ccad04c94ed441eabf7a18b4658a55771bd6eb7
     }
     setState(() {
       hidingPoint = LatLng(hidingLocation.latitude, hidingLocation.longitude);
@@ -237,25 +233,10 @@ class _MapPageState extends State<MapPage> {
   }
 
   getHidingPoint(dynamic data) {
-<<<<<<< HEAD
-    print('Hejehej funkar detta?');
-    try {
-      final Map body = convert.jsonDecode(data);
-      double hidingLat = double.parse(body["latitude"]);
-      double hidingLon = double.parse(body["longitude"]);
-      hidingPoint = LatLng(hidingLat, hidingLon);
-      print('vi kom hit');
-      print(body);
-      print(hidingPoint);
-    } catch (err) {
-      print(err);
-    }
-=======
     final Map body = convert.jsonDecode(data);
     double hidingLat = double.parse(body["latitude"]);
     double hidingLon = double.parse(body["longitude"]);
     hidingPoint = LatLng(hidingLat, hidingLon);
->>>>>>> 2ccad04c94ed441eabf7a18b4658a55771bd6eb7
   }
 
   @override

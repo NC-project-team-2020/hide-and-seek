@@ -67,12 +67,6 @@ class _LobbyPageState extends State<LobbyPage> {
           MaterialPageRoute(builder: (BuildContext context) => HomePage()),
           ModalRoute.withName("/register"),
         );
-      } else if (value == 'Map') {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (BuildContext context) => MapPage()),
-          ModalRoute.withName("/in-game"),
-        );
       }
     }
 
@@ -84,7 +78,7 @@ class _LobbyPageState extends State<LobbyPage> {
           PopupMenuButton<String>(
             onSelected: handleClick,
             itemBuilder: (BuildContext context) {
-              return {'Logout', 'Map'}.map((String choice) {
+              return {'Logout'}.map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
                   child: Text(choice),
