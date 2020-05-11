@@ -48,6 +48,11 @@ flutter:
     - assets/seeker_marker.png
     - assets/hub-logo.png
     - assets/logo.png
+
+  fonts:
+    - family: Ringbearer
+      fonts:
+        - asset: fonts/ringbearer.ttf
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

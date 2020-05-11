@@ -59,15 +59,13 @@ class _InGameMapState extends State<InGameMap> {
 
   void updateMarkerAndCircle(
       LocationData newLocalData, Uint8List hiderImage, Uint8List seekerImage) {
-    LatLng latlng = LatLng(newLocalData.latitude, newLocalData.longitude);
     this.setState(() {
       circle = Circle(
           circleId: CircleId("hiding-area"),
           radius: widget.radiusMeterage,
           zIndex: 1,
-          strokeColor: Colors.red,
-          center: widget.radiusLatLng,
-          fillColor: Colors.red.withAlpha(30));
+          strokeColor: Color(int.parse('0xff3b2137')),
+          center: widget.radiusLatLng);
     });
   }
 

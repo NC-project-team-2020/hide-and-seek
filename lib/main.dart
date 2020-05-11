@@ -41,6 +41,7 @@ class _MyAppState extends State<MyApp> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           return MaterialApp(
+            debugShowCheckedModeBanner: false,
             title: 'Peekaboo',
             initialRoute: _initialRoute,
             routes: {

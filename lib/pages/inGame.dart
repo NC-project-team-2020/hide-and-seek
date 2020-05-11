@@ -56,6 +56,7 @@ class _MapPageState extends State<MapPage> {
   bool showFindButton = false;
   String confirmFindMsg;
   bool showConfirmPopup;
+  bool waitingForRes = false;
 
   Future<void> setHidingPoint(dynamic data) async {
     _startTimer.cancel();
@@ -274,6 +275,9 @@ class _MapPageState extends State<MapPage> {
   }
 
   confirmFindReplyDialog(BuildContext context) {
+    setState(() {
+      waitingForRes = false;
+    });
     return showDialog(
       context: context,
       builder: (context) {
@@ -329,7 +333,9 @@ class _MapPageState extends State<MapPage> {
                   InGameTimer(
                       turn: turn,
                       elapsedTime: elapsedTime,
-                      elapsedTimeSeek: elapsedTimeSeek),
+                      elapsedTimeSeek: elapsedTimeSeek,
+                      selectedHider: selectedHider,
+                      userName: userName),
                 ],
               ),
             ),
@@ -340,8 +346,11 @@ class _MapPageState extends State<MapPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(15.0),
                     child: RaisedButton(
-                        child: Text('Set Your Hiding Point'),
-                        color: Colors.yellow[600],
+                        child: Text(
+                          'Set Your Hiding Point',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        color: Color(int.parse('0xff7c94a1')),
                         onPressed: () {
                           socketIO.sendMessage("startSeek",
                               '{ "seekTime": $seekerTime, "roomPass": "$roomPass"}');
@@ -355,10 +364,20 @@ class _MapPageState extends State<MapPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(15.0),
                     child: RaisedButton(
-                        child: Text('Found Hider'),
-                        color: Colors.yellow[600],
+                        child: Text(
+                          !waitingForRes
+                              ? 'Found Hider'
+                              : 'Waiting for response',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        color: Color(int.parse('0xff7c94a1')),
                         onPressed: () {
-                          print("found");
+                          if (waitingForRes) {
+                            return null;
+                          }
+                          setState(() {
+                            waitingForRes = true;
+                          });
                           socketIO.sendMessage("confirmFind",
                               '{ "userName": "$userName", "roomPass": "$roomPass"}');
                         }),
@@ -372,8 +391,9 @@ class _MapPageState extends State<MapPage> {
               child: FloatingActionButton(
                 heroTag: 'getLocation',
                 child: Icon(Icons.location_on),
-                backgroundColor:
-                    followWithCamera ? Colors.blue : Colors.blue.withAlpha(30),
+                backgroundColor: followWithCamera
+                    ? Color(int.parse("0xff272744"))
+                    : Color(int.parse("0xff272744")).withAlpha(20),
                 onPressed: () {
                   // getCurrentLocation();
                   setState(() {
@@ -393,26 +413,26 @@ class _MapPageState extends State<MapPage> {
               MaterialPageRoute(builder: (BuildContext context) => LobbyPage()),
               ModalRoute.withName("/"),
             );
-          } else if (value == 1) {
-            _clueCounterValue(context);
-          } else if (value == 2) {
+          } else if (value == 0) {
             _chatCounterValue(context);
+          } else if (value == 1) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (BuildContext context) => LobbyPage()),
+              ModalRoute.withName("/"),
+            );
           }
         },
         items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            title: Text('Lobby'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            title: Text('Clues'),
-          ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.chat,
             ),
             title: Text('Chat'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.exit_to_app),
+            title: Text('Leave Game'),
           )
         ],
       ),
