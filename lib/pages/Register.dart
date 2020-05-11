@@ -64,9 +64,13 @@ class _RegisterState extends State<Register> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
+    String color = "0xfff2d3ab";
+
     return new Scaffold(
+      backgroundColor: Color(int.parse(color)),
       key: _scaffoldKey,
       appBar: new AppBar(
+        backgroundColor: Color(int.parse("0xff272744")),
         title: Text('Register New User'),
       ),
       body: Center(
@@ -86,92 +90,110 @@ class _RegisterState extends State<Register> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          TextFormField(
-            readOnly: isLoading,
-            controller: _username,
-            decoration: const InputDecoration(
-              labelText: 'Username',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter some text';
-              }
-              return null;
-            },
-          ),
-          SizedBox(height: 25.0),
-          TextFormField(
-            readOnly: isLoading,
-            controller: _email,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              labelText: 'Email',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter some text';
-              }
-              return null;
-            },
-          ),
-          SizedBox(height: 25.0),
-          TextFormField(
-            readOnly: isLoading,
-            controller: _firstName,
-            decoration: const InputDecoration(
-              labelText: 'First name',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter some text';
-              }
-              return null;
-            },
-          ),
-          SizedBox(height: 25.0),
-          TextFormField(
-            readOnly: isLoading,
-            controller: _lastName,
-            decoration: const InputDecoration(
-              labelText: 'Second name',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter some text';
-              }
-              return null;
-            },
-          ),
-          SizedBox(height: 25.0),
-          TextFormField(
+          Container(
+            color: Color(int.parse("0xfffbf5ef")),
+            child: TextFormField(
               readOnly: isLoading,
-              controller: _password,
+              controller: _username,
+              decoration: const InputDecoration(
+                labelText: 'Username',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Please enter some text';
+                }
+                return null;
+              },
+            ),
+          ),
+          SizedBox(height: 25.0),
+          Container(
+            color: Color(int.parse("0xfffbf5ef")),
+            child: TextFormField(
+              readOnly: isLoading,
+              controller: _email,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Please enter some text';
+                }
+                return null;
+              },
+            ),
+          ),
+          SizedBox(height: 25.0),
+          Container(
+            color: Color(int.parse("0xfffbf5ef")),
+            child: TextFormField(
+              readOnly: isLoading,
+              controller: _firstName,
+              decoration: const InputDecoration(
+                labelText: 'First name',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Please enter some text';
+                }
+                return null;
+              },
+            ),
+          ),
+          SizedBox(height: 25.0),
+          Container(
+            color: Color(int.parse("0xfffbf5ef")),
+            child: TextFormField(
+              readOnly: isLoading,
+              controller: _lastName,
+              decoration: const InputDecoration(
+                labelText: 'Second name',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Please enter some text';
+                }
+                return null;
+              },
+            ),
+          ),
+          SizedBox(height: 25.0),
+          Container(
+            color: Color(int.parse("0xfffbf5ef")),
+            child: TextFormField(
+                readOnly: isLoading,
+                controller: _password,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Password',
+                ),
+                validator: (value) {
+                  return !validatePassword(value)
+                      ? 'The password is not strong enough'
+                      : null;
+                }),
+          ),
+          SizedBox(height: 25.0),
+          Container(
+            color: Color(int.parse("0xfffbf5ef")),
+            child: TextFormField(
+              readOnly: isLoading,
+              controller: _repeatPassword,
               obscureText: true,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                labelText: 'Password',
+                labelText: 'Repeat password',
               ),
-              validator: (value) {
-                return !validatePassword(value)
-                    ? 'The password is not strong enough'
-                    : null;
-              }),
-          SizedBox(height: 25.0),
-          TextFormField(
-            readOnly: isLoading,
-            controller: _repeatPassword,
-            obscureText: true,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Repeat password',
+              validator: (value) => _password.text != _repeatPassword.text
+                  ? 'The passwords are not matching'
+                  : null,
             ),
-            validator: (value) => _password.text != _repeatPassword.text
-                ? 'The passwords are not matching'
-                : null,
           ),
           SizedBox(height: 25.0),
           SizedBox(
