@@ -76,7 +76,7 @@ class _RegisterState extends State<Register> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
-    String color = "0xfff2d3ab";
+    String color = "0xffb8b8b8";
 
     return new Scaffold(
       backgroundColor: Color(int.parse(color)),
@@ -103,7 +103,10 @@ class _RegisterState extends State<Register> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Container(
-            color: Color(int.parse("0xfffbf5ef")),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: Color(int.parse("0xfffbf5ef")),
+            ),
             child: TextFormField(
               readOnly: isLoading,
               controller: _username,
@@ -120,7 +123,10 @@ class _RegisterState extends State<Register> {
           ),
           SizedBox(height: 25.0),
           Container(
-            color: Color(int.parse("0xfffbf5ef")),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: Color(int.parse("0xfffbf5ef")),
+            ),
             child: TextFormField(
               readOnly: isLoading,
               controller: _email,
@@ -138,7 +144,10 @@ class _RegisterState extends State<Register> {
           ),
           SizedBox(height: 25.0),
           Container(
-            color: Color(int.parse("0xfffbf5ef")),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: Color(int.parse("0xfffbf5ef")),
+            ),
             child: TextFormField(
               readOnly: isLoading,
               controller: _firstName,
@@ -155,23 +164,32 @@ class _RegisterState extends State<Register> {
             ),
           ),
           SizedBox(height: 25.0),
-          TextFormField(
-            readOnly: isLoading,
-            controller: _lastName,
-            decoration: const InputDecoration(
-              labelText: 'Last name',
-              border: OutlineInputBorder(),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: Color(int.parse("0xfffbf5ef")),
             ),
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter your last name';
-              }
-              return null;
-            },
+            child: TextFormField(
+              readOnly: isLoading,
+              controller: _lastName,
+              decoration: const InputDecoration(
+                labelText: 'Last name',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Please enter your last name';
+                }
+                return null;
+              },
+            ),
           ),
           SizedBox(height: 25.0),
           Container(
-            color: Color(int.parse("0xfffbf5ef")),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: Color(int.parse("0xfffbf5ef")),
+            ),
             child: TextFormField(
                 readOnly: isLoading,
                 controller: _password,
@@ -188,7 +206,10 @@ class _RegisterState extends State<Register> {
           ),
           SizedBox(height: 25.0),
           Container(
-            color: Color(int.parse("0xfffbf5ef")),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: Color(int.parse("0xfffbf5ef")),
+            ),
             child: TextFormField(
               readOnly: isLoading,
               controller: _repeatPassword,
@@ -207,10 +228,14 @@ class _RegisterState extends State<Register> {
             width: double.infinity,
             height: 50,
             child: RaisedButton(
+              color: Color(int.parse("0xff65738c")),
               onPressed: validateAndSave,
               child: isLoading
                   ? CircularProgressIndicator()
-                  : Text('Register Now'),
+                  : Text(
+                      'Submit',
+                      style: TextStyle(fontSize: 22),
+                    ),
             ),
           ),
         ],

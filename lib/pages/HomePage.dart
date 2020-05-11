@@ -67,11 +67,15 @@ class _HomePageState extends State<HomePage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
+    String color = "0xffb8b8b8";
+
     print(_password);
     return new Scaffold(
+      backgroundColor: Color(int.parse(color)),
       key: _scaffoldKey,
       appBar: new AppBar(
-        title: Text('Peekaboo'),
+        backgroundColor: Color(int.parse("0xff272744")),
+        title: Text('Hubert'),
       ),
       body: Center(
         child: Padding(
@@ -89,36 +93,57 @@ class _HomePageState extends State<HomePage> {
       key: _formKey,
       child: Column(
         children: <Widget>[
-          TextFormField(
-            controller: _username,
-            decoration: const InputDecoration(
-              labelText: 'Username',
-              border: OutlineInputBorder(),
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 20,
+              top: 60,
+              right: 20,
+              bottom: 20,
             ),
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter your username';
-              }
-              return null;
-            },
+            child: Image(image: AssetImage('assets/logo.png')),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: Color(int.parse("0xfffbf5ef")),
+            ),
+            child: TextFormField(
+              controller: _username,
+              decoration: const InputDecoration(
+                labelText: 'Username',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Please enter your username';
+                }
+                return null;
+              },
+            ),
           ),
           SizedBox(height: 25.0),
-          TextFormField(
-            controller: _password,
-            obscureText: true,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Password',
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: Color(int.parse("0xfffbf5ef")),
             ),
-            validator: (value) =>
-                value.isEmpty ? 'Please enter your password' : null,
+            child: TextFormField(
+              controller: _password,
+              obscureText: true,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Password',
+              ),
+              validator: (value) =>
+                  value.isEmpty ? 'Please enter your password' : null,
+            ),
           ),
           SizedBox(height: 15.0),
           SizedBox(
             height: 50.0,
             width: double.infinity,
             child: RaisedButton(
-              color: Colors.blue,
+              color: Color(int.parse("0xff65738c")),
               onPressed: () {
                 if (isLoading) {
                   return null;
@@ -130,7 +155,10 @@ class _HomePageState extends State<HomePage> {
                       valueColor:
                           new AlwaysStoppedAnimation<Color>(Colors.black),
                     )
-                  : Text('Login'),
+                  : Text(
+                      'Login',
+                      style: TextStyle(fontSize: 22),
+                    ),
             ),
           ),
           SizedBox(height: 10.0),
@@ -138,13 +166,17 @@ class _HomePageState extends State<HomePage> {
             height: 50.0,
             width: double.infinity,
             child: RaisedButton(
+              color: Color(int.parse("0xfff2d3ab")),
               onPressed: () {
                 if (isLoading) {
                   return null;
                 }
                 Navigator.pushNamed(context, '/register');
               },
-              child: Text('Register Here'),
+              child: Text(
+                'Register',
+                style: TextStyle(fontSize: 22),
+              ),
             ),
           ),
         ],
