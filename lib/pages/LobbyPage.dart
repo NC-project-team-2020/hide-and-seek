@@ -81,7 +81,7 @@ class _LobbyPageState extends State<LobbyPage> {
 
     return Scaffold(
       appBar: new AppBar(
-        title: Text('Lobby'),
+        title: Text('Home'),
         backgroundColor: Color(int.parse("0xff272744")),
         actions: <Widget>[
           PopupMenuButton<String>(
@@ -105,6 +105,7 @@ class _LobbyPageState extends State<LobbyPage> {
           children: <Widget>[
             Text(
               'Welcome $userName',
+              textAlign: TextAlign.center,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
             ),
             Padding(
@@ -120,7 +121,7 @@ class _LobbyPageState extends State<LobbyPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Container(
-                  width: 140.0,
+                  width: 180.0,
                   height: 140.0,
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -136,7 +137,11 @@ class _LobbyPageState extends State<LobbyPage> {
                           }
                         });
                       },
-                      child: Text('Create Room'),
+                      child: Text(
+                        'Create Room',
+                        style: TextStyle(fontSize: 34),
+                        textAlign: TextAlign.center,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(40),
@@ -150,7 +155,7 @@ class _LobbyPageState extends State<LobbyPage> {
                   ),
                 ),
                 Container(
-                  width: 140.0,
+                  width: 180.0,
                   height: 140.0,
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -168,7 +173,11 @@ class _LobbyPageState extends State<LobbyPage> {
                           }
                         });
                       },
-                      child: Text('Join Room'),
+                      child: Text(
+                        'Join Room',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 34),
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.only(
                             topRight: Radius.circular(40),
@@ -187,6 +196,9 @@ class _LobbyPageState extends State<LobbyPage> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Color(int.parse('0xff433a60')),
+        selectedItemColor: Color(int.parse('0xff7c94a1')),
+        unselectedItemColor: Color(int.parse('0xfffbf5ef')),
         onTap: (value) {
           if (value == 1) {
             Navigator.of(context).push(new MaterialPageRoute<Null>(
@@ -199,7 +211,7 @@ class _LobbyPageState extends State<LobbyPage> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            title: Text('Lobby'),
+            title: Text('Home'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

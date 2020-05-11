@@ -90,6 +90,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
       setArgsFlag = false;
       setArgs(ModalRoute.of(context).settings.arguments);
     }
+    String color = "0xffb8b8b8";
 
     return FutureBuilder(
       future: getSharedPrefs(),
@@ -98,6 +99,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
           return new Scaffold(
             key: _scaffoldKey,
             appBar: new AppBar(
+              backgroundColor: Color(int.parse("0xff272744")),
               title: Text('Lobby'),
               actions: <Widget>[
                 PopupMenuButton<String>(
@@ -109,6 +111,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                 ),
               ],
             ),
+            backgroundColor: Color(int.parse(color)),
             body: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -156,31 +159,42 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                 ),
                 host
                     ? SizedBox(
-                        height: 80.0,
-                        child: RaisedButton(
-                          onPressed: () {
-                            if (hideTime == null ||
-                                seekTime == null ||
-                                radiusMeterage == null ||
-                                selectedHider == null) {
-                              final failedSnackBar = SnackBar(
-                                backgroundColor: Colors.red[500],
-                                content: Text(
-                                    'Fill in the game settings (needs better wording here...'),
-                              );
-                              _scaffoldKey.currentState
-                                  .showSnackBar(failedSnackBar);
-                              return null;
-                            }
-                            socketIO.sendMessage("startGame",
-                                '{ "hideTime": "$hideTime", "roomPass": "$roomPass", "latitude": "$radiusLat", "longitude": "$radiusLon", "radiusMetres": "$radiusMeterage" }');
-                          },
-                          child: Text(
-                            "Go Hide",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 30.0,
+                        height: 120.0,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: RaisedButton(
+                            onPressed: () {
+                              if (hideTime == null ||
+                                  seekTime == null ||
+                                  radiusMeterage == null ||
+                                  selectedHider == null) {
+                                final failedSnackBar = SnackBar(
+                                  backgroundColor: Colors.red[500],
+                                  content: Text(
+                                      'Fill in the game settings (needs better wording here...'),
+                                );
+                                _scaffoldKey.currentState
+                                    .showSnackBar(failedSnackBar);
+                                return null;
+                              }
+                              socketIO.sendMessage("startGame",
+                                  '{ "hideTime": "$hideTime", "roomPass": "$roomPass", "latitude": "$radiusLat", "longitude": "$radiusLon", "radiusMetres": "$radiusMeterage" }');
+                            },
+                            child: Text(
+                              "Go Hide",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 30.0,
+                              ),
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                              side: BorderSide(
+                                width: 3,
+                                color: Color(int.parse('0xff65738c')),
+                              ),
                             ),
                           ),
                         ),
@@ -197,6 +211,9 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
             ),
             bottomNavigationBar: host
                 ? BottomNavigationBar(
+                    backgroundColor: Color(int.parse('0xff433a60')),
+                    selectedItemColor: Color(int.parse('0xff7c94a1')),
+                    unselectedItemColor: Color(int.parse('0xfffbf5ef')),
                     items: const <BottomNavigationBarItem>[
                       BottomNavigationBarItem(
                         icon: Icon(Icons.home),
