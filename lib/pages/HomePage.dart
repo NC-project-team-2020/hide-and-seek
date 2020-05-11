@@ -44,6 +44,7 @@ class _HomePageState extends State<HomePage> {
         prefs.setString('first_name', user['first_name']);
         prefs.setString('last_name', user['last_name']);
         prefs.setStringList('avatar', avatarStrList);
+        prefs.setString('chatList', "[]");
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (BuildContext context) => LobbyPage()),

@@ -5,7 +5,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hideandseek/pages/components/chat/chat.component.dart';
 import 'package:hideandseek/pages/components/clues/Clues.component.dart';
 import 'package:location/location.dart';
-import 'package:badges/badges.dart';
 import './LobbyPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_socket_io/flutter_socket_io.dart';
@@ -73,6 +72,9 @@ class _MapPageState extends State<MapPage> {
       socketIO.sendMessage("hiderPosition",
           '{ "user_name": "$userName", "user_id": "$userID", "longitude": "$hidingLon", "latitude": "$hidingLat", "roomPass": "$roomPass"}');
     }
+    if (userName != selectedHider) {
+      timeToHunt(context);
+    }
     setState(() {
       hidingPoint = LatLng(hidingLocation.latitude, hidingLocation.longitude);
       seekerTime = difTime.inSeconds;
@@ -111,7 +113,13 @@ class _MapPageState extends State<MapPage> {
       oneSec,
       (Timer timer) => setState(
         () {
-          if (_current < 1) {
+          if (_currentSeek < 1) {
+            print("less than 1");
+            if (host) {
+              print("host");
+              socketIO.sendMessage("endGame",
+                  '{ "winner": "$selectedHider", "roomPass": "$roomPass"}');
+            }
             timer.cancel();
           } else {
             _currentSeek = _currentSeek - 1;
@@ -144,6 +152,11 @@ class _MapPageState extends State<MapPage> {
   }
 
   void dispose() {
+    socketIO.unSubscribe("startSeek");
+    socketIO.unSubscribe("hiderPosition");
+    socketIO.unSubscribe("confirmFind");
+    socketIO.unSubscribe("endGame");
+    socketIO.unSubscribe("confirmFindReply");
     _startTimer.cancel();
     super.dispose();
   }
@@ -174,7 +187,7 @@ class _MapPageState extends State<MapPage> {
       socketIO.subscribe("hiderPosition", getHidingPoint);
       socketIO.subscribe("confirmFind", confirmFind);
       socketIO.subscribe("endGame", endGame);
-      // socketIO.subscribe("confirmFindReply", confirmFindReply);
+      socketIO.subscribe("confirmFindReply", confirmFindReply);
     });
     if (!hiderTimeStart) {
       hiderTimeStart = true;
@@ -191,6 +204,12 @@ class _MapPageState extends State<MapPage> {
     Navigator.pushNamed(context, '/lobby-room', arguments: arguments);
   }
 
+  confirmFindReply(dynamic data) {
+    if (userName != selectedHider) {
+      confirmFindReplyDialog(context);
+    }
+  }
+
   confirmFind(dynamic data) {
     if (userName == selectedHider) {
       final Map body = convert.jsonDecode(data);
@@ -202,9 +221,31 @@ class _MapPageState extends State<MapPage> {
         if (value == true) {
           socketIO.sendMessage(
               "endGame", '{ "winner": $seeker, "roomPass": "$roomPass"}');
+        } else if (value == false) {
+          socketIO.sendMessage("confirmFindReply",
+              '{ "confirm": $value, "roomPass": "$roomPass"}');
         }
       });
     }
+  }
+
+  timeToHunt(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Now it's time to hunt!"),
+          actions: <Widget>[
+            MaterialButton(
+                elevation: 5.0,
+                child: Text('Go!'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                }),
+          ],
+        );
+      },
+    );
   }
 
   confirmFindDialog(BuildContext context) {
@@ -225,6 +266,25 @@ class _MapPageState extends State<MapPage> {
                 child: Text('Confirm'),
                 onPressed: () {
                   Navigator.of(context).pop(true);
+                }),
+          ],
+        );
+      },
+    );
+  }
+
+  confirmFindReplyDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('You did not find the hider...'),
+          actions: <Widget>[
+            MaterialButton(
+                elevation: 5.0,
+                child: Text('Keep on hunting!'),
+                onPressed: () {
+                  Navigator.of(context).pop();
                 }),
           ],
         );
@@ -345,26 +405,12 @@ class _MapPageState extends State<MapPage> {
             title: Text('Lobby'),
           ),
           BottomNavigationBarItem(
-            icon: Badge(
-              showBadge: true,
-              badgeContent: Text(
-                '${_clueCounter.toString()}',
-                style: TextStyle(color: Colors.white),
-              ),
-              child: Icon(Icons.search),
-            ),
+            icon: Icon(Icons.search),
             title: Text('Clues'),
           ),
           BottomNavigationBarItem(
-            icon: Badge(
-              showBadge: true,
-              badgeContent: Text(
-                '${_chatCounter.toString()}',
-                style: TextStyle(color: Colors.white),
-              ),
-              child: Icon(
-                Icons.chat,
-              ),
+            icon: Icon(
+              Icons.chat,
             ),
             title: Text('Chat'),
           )
@@ -375,14 +421,16 @@ class _MapPageState extends State<MapPage> {
 
   _chatCounterValue(BuildContext context) async {
     final result = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Chat(
-              socketIO: socketIO,
-              userName: userName,
-              hiderID: selectedHider,
-              roomPass: roomPass),
-        ));
+      context,
+      MaterialPageRoute(
+        builder: (context) => Chat(
+          socketIO: socketIO,
+          userName: userName,
+          hiderID: selectedHider,
+          roomPass: roomPass,
+        ),
+      ),
+    );
     if (result != null) {
       setState(() {
         _chatCounter = result;

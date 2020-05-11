@@ -92,134 +92,133 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     }
 
     return FutureBuilder(
-        future: getSharedPrefs(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return new Scaffold(
-              key: _scaffoldKey,
-              appBar: new AppBar(
-                title: Text('Lobby'),
-                actions: <Widget>[
-                  PopupMenuButton<String>(
-                    onSelected: handleClick,
-                    itemBuilder: (_) => <PopupMenuItem<String>>[
-                      new PopupMenuItem<String>(
-                          child: const Text('Leave lobby'),
-                          value: 'Leave lobby'),
-                    ],
-                  ),
-                ],
-              ),
-              body: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Room Password: $roomPass',
-                        style: TextStyle(fontSize: 25.0),
-                        textAlign: TextAlign.center),
-                  ),
-                  SizedBox(
-                    width: 150,
-                    height: 300,
-                    child: ListView.builder(
-                        itemCount: _players?.length ?? 0,
-                        itemBuilder: (context, index) {
-                          final playerIndex = _players[index];
-                          final userName = playerIndex['user_name'];
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ListTile(
-                                title: RichText(
-                                  text: TextSpan(
-                                    style: Theme.of(context).textTheme.body1,
-                                    children: [
-                                      winner == userName
-                                          ? WidgetSpan(
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 2.0),
-                                                child: Icon(Icons.stars),
-                                              ),
-                                            )
-                                          : TextSpan(text: ' '),
-                                      TextSpan(text: userName),
-                                    ],
-                                  ),
+      future: getSharedPrefs(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return new Scaffold(
+            key: _scaffoldKey,
+            appBar: new AppBar(
+              title: Text('Lobby'),
+              actions: <Widget>[
+                PopupMenuButton<String>(
+                  onSelected: handleClick,
+                  itemBuilder: (_) => <PopupMenuItem<String>>[
+                    new PopupMenuItem<String>(
+                        child: const Text('Leave lobby'), value: 'Leave lobby'),
+                  ],
+                ),
+              ],
+            ),
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Room Password: $roomPass',
+                      style: TextStyle(fontSize: 25.0),
+                      textAlign: TextAlign.center),
+                ),
+                SizedBox(
+                  width: 150,
+                  height: 300,
+                  child: ListView.builder(
+                      itemCount: _players?.length ?? 0,
+                      itemBuilder: (context, index) {
+                        final playerIndex = _players[index];
+                        final userName = playerIndex['user_name'];
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListTile(
+                              title: RichText(
+                                text: TextSpan(
+                                  style: Theme.of(context).textTheme.body1,
+                                  children: [
+                                    winner == userName
+                                        ? WidgetSpan(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 2.0),
+                                              child: Icon(Icons.stars),
+                                            ),
+                                          )
+                                        : TextSpan(text: ' '),
+                                    TextSpan(text: userName),
+                                  ],
                                 ),
-                                onTap: () {
-                                  _showcontent(context);
-                                }),
-                          );
-                        }),
-                  ),
-                  host
-                      ? SizedBox(
-                          height: 80.0,
-                          child: RaisedButton(
-                            onPressed: () {
-                              if (hideTime == null ||
-                                  seekTime == null ||
-                                  radiusMeterage == null ||
-                                  selectedHider == null) {
-                                final failedSnackBar = SnackBar(
-                                  backgroundColor: Colors.red[500],
-                                  content: Text(
-                                      'Fill in the game settings (needs better wording here...'),
-                                );
-                                _scaffoldKey.currentState
-                                    .showSnackBar(failedSnackBar);
-                                return null;
-                              }
-                              socketIO.sendMessage("startGame",
-                                  '{ "hideTime": "$hideTime", "roomPass": "$roomPass", "latitude": "$radiusLat", "longitude": "$radiusLon", "radiusMetres": "$radiusMeterage" }');
-                            },
-                            child: Text(
-                              "Go Hide",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 30.0,
                               ),
+                              onTap: () {
+                                _showcontent(context);
+                              }),
+                        );
+                      }),
+                ),
+                host
+                    ? SizedBox(
+                        height: 80.0,
+                        child: RaisedButton(
+                          onPressed: () {
+                            if (hideTime == null ||
+                                seekTime == null ||
+                                radiusMeterage == null ||
+                                selectedHider == null) {
+                              final failedSnackBar = SnackBar(
+                                backgroundColor: Colors.red[500],
+                                content: Text(
+                                    'Fill in the game settings (needs better wording here...'),
+                              );
+                              _scaffoldKey.currentState
+                                  .showSnackBar(failedSnackBar);
+                              return null;
+                            }
+                            socketIO.sendMessage("startGame",
+                                '{ "hideTime": "$hideTime", "roomPass": "$roomPass", "latitude": "$radiusLat", "longitude": "$radiusLon", "radiusMetres": "$radiusMeterage" }');
+                          },
+                          child: Text(
+                            "Go Hide",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 30.0,
                             ),
                           ),
-                        )
-                      : Text(
-                          "Waiting for the host to start the game!",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 30.0,
-                          ),
                         ),
-                ],
-              ),
-              bottomNavigationBar: host
-                  ? BottomNavigationBar(
-                      items: const <BottomNavigationBarItem>[
-                        BottomNavigationBarItem(
-                          icon: Icon(Icons.home),
-                          title: Text('Room'),
+                      )
+                    : Text(
+                        "Waiting for the host to start the game!",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30.0,
                         ),
-                        BottomNavigationBarItem(
-                          icon: Icon(Icons.settings),
-                          title: Text('Game Settings'),
-                        )
-                      ],
-                      onTap: (value) {
-                        if (value == 1) {
-                          gameSettings(context);
-                        }
-                      },
-                    )
-                  : null,
-            );
-          }
-          ;
-          return CircularProgressIndicator();
-        });
+                      ),
+              ],
+            ),
+            bottomNavigationBar: host
+                ? BottomNavigationBar(
+                    items: const <BottomNavigationBarItem>[
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.home),
+                        title: Text('Room'),
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.settings),
+                        title: Text('Game Settings'),
+                      )
+                    ],
+                    onTap: (value) {
+                      if (value == 1) {
+                        gameSettings(context);
+                      }
+                    },
+                  )
+                : null,
+          );
+        }
+        return CircularProgressIndicator();
+      },
+    );
   }
 
   transformSeconds(int seconds) {

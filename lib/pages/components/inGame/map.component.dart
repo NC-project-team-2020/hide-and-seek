@@ -144,8 +144,6 @@ class _InGameMapState extends State<InGameMap> {
   }
 
   handleSeekerPosition(dynamic data) async {
-    print(data);
-    print("here");
     try {
       Uint8List seekerImage =
           await getBytesFromAsset('assets/seeker_marker.png', 100);
@@ -168,22 +166,21 @@ class _InGameMapState extends State<InGameMap> {
 
   @override
   void initState() {
-    super.initState();
     rootBundle.loadString('assets/map_style.txt').then((string) {
       _mapStyle = string;
     });
-    if (widget.selectedHider == widget.userName) {
-      // widget.socketIO.subscribe("seekerPosition", handleSeekerPosition);
-    }
+    if (widget.selectedHider == widget.userName) {}
     radiusMeterage = widget.radiusMeterage;
     radiusLatLng = widget.radiusLatLng;
     getCurrentLocation();
+    super.initState();
   }
 
   @override
   void didUpdateWidget(InGameMap oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.radiusMeterage != oldWidget.radiusMeterage) {
+      widget.socketIO.subscribe("seekerPosition", handleSeekerPosition);
       setState(() {
         radiusMeterage = widget.radiusMeterage;
         radiusLatLng = widget.radiusLatLng;
@@ -195,6 +192,9 @@ class _InGameMapState extends State<InGameMap> {
     if (_locationSubscription != null) {
       _locationSubscription.cancel();
     }
+    _controller = null;
+    widget.socketIO.unSubscribe("seekerPosition");
+
     super.dispose();
   }
 
@@ -205,7 +205,7 @@ class _InGameMapState extends State<InGameMap> {
       myLocationButtonEnabled: false,
       myLocationEnabled: true,
       zoomControlsEnabled: false,
-      markers: Set.of((hider != null) ? [seeker] : []),
+      markers: Set.of((seeker != null) ? [seeker] : []),
       circles: Set.of((circle != null) ? [circle] : []),
       onMapCreated: (GoogleMapController controller) {
         _controller = controller;
