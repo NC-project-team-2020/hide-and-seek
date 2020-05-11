@@ -43,7 +43,13 @@ class _MyAppState extends State<MyApp> {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Peekaboo',
-            theme: ThemeData(fontFamily: 'RobotoCondensed'),
+            theme: ThemeData(
+              fontFamily: 'RobotoCondensed',
+              backgroundColor: Color(int.parse('0xffb8b8b8')),
+              primaryColor: Color(
+                int.parse('0xff433a60'),
+              ),
+            ),
             initialRoute: _initialRoute,
             routes: {
               '/': (context) => LobbyPage(),

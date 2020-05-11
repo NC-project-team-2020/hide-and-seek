@@ -194,7 +194,7 @@ class _RegisterState extends State<Register> {
                 readOnly: isLoading,
                 controller: _password,
                 obscureText: true,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Password',
                 ),

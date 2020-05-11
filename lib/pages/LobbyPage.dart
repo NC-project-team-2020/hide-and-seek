@@ -101,117 +101,121 @@ class _LobbyPageState extends State<LobbyPage> {
       ),
       backgroundColor: Color(int.parse(color)),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Welcome $userName',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 40,
-                top: 60,
-                right: 40,
-                bottom: 60,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                'Welcome $userName',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
               ),
-              child: Image(image: AssetImage('assets/logo.png')),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  width: 180.0,
-                  height: 140.0,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: RaisedButton(
-                      onPressed: () {
-                        createRoomDialog(context).then((roomName) {
-                          if (roomName.toString().length > 0 &&
-                              roomName != null) {
-                            String jsonData =
-                                '{"user_name":"$userName","user_id":"$userID", "room":"$roomName"}';
-                            socketIO.sendMessage("createRoom", jsonData);
-                            print(roomName);
-                          } else {
-                            final failedSnackBar = SnackBar(
-                              backgroundColor: Colors.red[500],
-                              content:
-                                  Text('Room name required to create room!'),
-                            );
-                            _scaffoldKey.currentState
-                                .showSnackBar(failedSnackBar);
-                            return null;
-                          }
-                        });
-                      },
-                      child: Text(
-                        'Create Room',
-                        style: TextStyle(fontSize: 22),
-                        textAlign: TextAlign.center,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(40),
-                            bottomLeft: Radius.circular(40)),
-                        side: BorderSide(
-                          width: 3,
-                          color: Color(int.parse('0xff65738c')),
-                        ),
-                      ),
-                    ),
-                  ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: 40,
+                  top: 60,
+                  right: 40,
+                  bottom: 60,
                 ),
-                Container(
-                  width: 180.0,
-                  height: 140.0,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: RaisedButton(
-                      onPressed: () {
-                        joinRoomDialog(context).then((roomID) {
-                          setState(() {
-                            roomPass = roomID;
+                child: Image(image: AssetImage('assets/logo.png')),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    width: 180.0,
+                    height: 140.0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: RaisedButton(
+                        onPressed: () {
+                          createRoomDialog(context).then((roomName) {
+                            if (roomName.toString().length > 0 &&
+                                roomName != null) {
+                              String jsonData =
+                                  '{"user_name":"$userName","user_id":"$userID", "room":"$roomName"}';
+                              socketIO.sendMessage("createRoom", jsonData);
+                              print(roomName);
+                            } else {
+                              final failedSnackBar = SnackBar(
+                                backgroundColor: Colors.red[500],
+                                content:
+                                    Text('Room name required to create room!'),
+                              );
+                              _scaffoldKey.currentState
+                                  .showSnackBar(failedSnackBar);
+                              return null;
+                            }
                           });
-                          if (roomID.toString().length > 0 && roomID != null) {
-                            print(roomID);
-                            String jsonData =
-                                '{"user_name":"$userName","user_id":"$userID", "roomPass":"$roomID"}';
-                            socketIO.sendMessage("joinRoom", jsonData);
-                          } else {
-                            final failedSnackBar = SnackBar(
-                              backgroundColor: Colors.red[500],
-                              content: Text('Room ID required to create room!'),
-                            );
-                            _scaffoldKey.currentState
-                                .showSnackBar(failedSnackBar);
-                            return null;
-                          }
-                        });
-                      },
-                      child: Text(
-                        'Join Room',
-                        style: TextStyle(fontSize: 22),
-                        textAlign: TextAlign.center,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(40),
-                            bottomRight: Radius.circular(40)),
-                        side: BorderSide(
-                          width: 3,
-                          color: Color(int.parse('0xff65738c')),
+                        },
+                        child: Text(
+                          'Create Room',
+                          style: TextStyle(fontSize: 22),
+                          textAlign: TextAlign.center,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(40),
+                              bottomLeft: Radius.circular(40)),
+                          side: BorderSide(
+                            width: 3,
+                            color: Color(int.parse('0xff65738c')),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                  Container(
+                    width: 180.0,
+                    height: 140.0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: RaisedButton(
+                        onPressed: () {
+                          joinRoomDialog(context).then((roomID) {
+                            setState(() {
+                              roomPass = roomID;
+                            });
+                            if (roomID.toString().length > 0 &&
+                                roomID != null) {
+                              print(roomID);
+                              String jsonData =
+                                  '{"user_name":"$userName","user_id":"$userID", "roomPass":"$roomID"}';
+                              socketIO.sendMessage("joinRoom", jsonData);
+                            } else {
+                              final failedSnackBar = SnackBar(
+                                backgroundColor: Colors.red[500],
+                                content:
+                                    Text('Room ID required to create room!'),
+                              );
+                              _scaffoldKey.currentState
+                                  .showSnackBar(failedSnackBar);
+                              return null;
+                            }
+                          });
+                        },
+                        child: Text(
+                          'Join Room',
+                          style: TextStyle(fontSize: 22),
+                          textAlign: TextAlign.center,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(40),
+                              bottomRight: Radius.circular(40)),
+                          side: BorderSide(
+                            width: 3,
+                            color: Color(int.parse('0xff65738c')),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
