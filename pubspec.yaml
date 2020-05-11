@@ -18,6 +18,7 @@ environment:
 
 dependencies:
   google_maps_flutter: ^0.5.21+8
+  flutter_launcher_icons: ^0.7.5
   flutter_socket_io: ^0.6.0
   badges: ^1.1.1
   geolocator: ^5.3.1
@@ -45,6 +46,8 @@ flutter:
     - assets/map_style.txt
     - assets/hider_marker.png
     - assets/seeker_marker.png
+    - assets/hub-logo.png
+    - assets/logo.png
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -76,3 +79,6 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+flutter_icons:
+  image_path: 'assets/hubert.png'
+  android: true

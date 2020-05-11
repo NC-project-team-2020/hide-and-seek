@@ -19,6 +19,7 @@ class _LobbyPageState extends State<LobbyPage> {
   String userName;
   String userID;
   String roomPass;
+  var avatar;
 
   Future<Null> getSharedPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -70,10 +71,12 @@ class _LobbyPageState extends State<LobbyPage> {
       }
     }
 
+    String color = "0xffb8b8b8";
+
     return Scaffold(
       appBar: new AppBar(
         title: Text('Lobby'),
-        backgroundColor: Color(0xff05668D),
+        backgroundColor: Color(int.parse("0xff272744")),
         actions: <Widget>[
           PopupMenuButton<String>(
             onSelected: handleClick,
@@ -88,44 +91,67 @@ class _LobbyPageState extends State<LobbyPage> {
           ),
         ],
       ),
-      backgroundColor: Color(0xffEBF2FA),
+      backgroundColor: Color(int.parse(color)),
       body: Center(
-        child: Padding(
-          padding: EdgeInsets.all(18.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              RaisedButton(
-                onPressed: () {
-                  createRoomDialog(context).then((roomName) {
-                    if (roomName.toString().length > 0 && roomName != null) {
-                      String jsonData =
-                          '{"user_name":"$userName","user_id":"$userID", "room":"$roomName"}';
-                      socketIO.sendMessage("createRoom", jsonData);
-                      print(roomName);
-                    }
-                  });
-                },
-                child: Text('Create Room'),
-              ),
-              RaisedButton(
-                onPressed: () {
-                  joinRoomDialog(context).then((roomID) {
-                    setState(() {
-                      roomPass = roomID;
-                    });
-                    if (roomID.toString().length > 0 && roomID != null) {
-                      print(roomID);
-                      String jsonData =
-                          '{"user_name":"$userName","user_id":"$userID", "roomPass":"$roomID"}';
-                      socketIO.sendMessage("joinRoom", jsonData);
-                    }
-                  });
-                },
-                child: Text('Join Room'),
-              ),
-            ],
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              '$userName',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
+            ),
+            Image(image: AssetImage('assets/logo.png')),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  width: 140.0,
+                  height: 140.0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: RaisedButton(
+                      onPressed: () {
+                        createRoomDialog(context).then((roomName) {
+                          if (roomName.toString().length > 0 &&
+                              roomName != null) {
+                            String jsonData =
+                                '{"user_name":"$userName","user_id":"$userID", "room":"$roomName"}';
+                            socketIO.sendMessage("createRoom", jsonData);
+                            print(roomName);
+                          }
+                        });
+                      },
+                      child: Text('Create Room'),
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 140.0,
+                  height: 140.0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: RaisedButton(
+                      onPressed: () {
+                        joinRoomDialog(context).then((roomID) {
+                          setState(() {
+                            roomPass = roomID;
+                          });
+                          if (roomID.toString().length > 0 && roomID != null) {
+                            print(roomID);
+                            String jsonData =
+                                '{"user_name":"$userName","user_id":"$userID", "roomPass":"$roomID"}';
+                            socketIO.sendMessage("joinRoom", jsonData);
+                          }
+                        });
+                      },
+                      child: Text('Join Room'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
