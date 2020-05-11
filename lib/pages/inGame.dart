@@ -408,12 +408,6 @@ class _MapPageState extends State<MapPage> {
       bottomNavigationBar: BottomNavigationBar(
         onTap: (value) {
           if (value == 0) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (BuildContext context) => LobbyPage()),
-              ModalRoute.withName("/"),
-            );
-          } else if (value == 0) {
             _chatCounterValue(context);
           } else if (value == 1) {
             Navigator.pushAndRemoveUntil(

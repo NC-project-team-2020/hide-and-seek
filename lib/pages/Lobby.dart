@@ -171,7 +171,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                                 final failedSnackBar = SnackBar(
                                   backgroundColor: Colors.red[500],
                                   content: Text(
-                                      'Fill in the game settings (needs better wording here...'),
+                                      'Complete Game Settings To Proceed.'),
                                 );
                                 _scaffoldKey.currentState
                                     .showSnackBar(failedSnackBar);
@@ -260,7 +260,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Set number of minutes for hide and seek time'),
+          title: Text('Game Settings'),
           content: settingsSelect(),
         );
       },
@@ -268,7 +268,7 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   }
 
   settingsSelect() {
-    TextEditingController _c = new TextEditingController(text: '1');
+    TextEditingController _c = new TextEditingController(text: '5');
     TextEditingController _g = new TextEditingController(text: '10');
     TextEditingController _radius = new TextEditingController(text: '300');
     String hiderSelected = selectedHider;
@@ -281,17 +281,17 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
             TextField(
               keyboardType: TextInputType.number,
               controller: _c,
-              decoration: new InputDecoration(labelText: 'Hide Time'),
+              decoration: new InputDecoration(labelText: 'Hide Time (Minutes)'),
             ),
             TextField(
               keyboardType: TextInputType.number,
               controller: _g,
-              decoration: new InputDecoration(labelText: 'Seek Time'),
+              decoration: new InputDecoration(labelText: 'Seek Time (Minutes)'),
             ),
             TextField(
               keyboardType: TextInputType.number,
               controller: _radius,
-              decoration: new InputDecoration(labelText: 'Radius Meterage'),
+              decoration: new InputDecoration(labelText: 'Radius (Metres)'),
             ),
             DropdownButton(
               value: hiderSelected,
