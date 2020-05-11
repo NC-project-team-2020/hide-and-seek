@@ -157,7 +157,7 @@ class _HomePageState extends State<HomePage> {
                     )
                   : Text(
                       'Login',
-                      style: TextStyle(fontSize: 22),
+                      style: TextStyle(fontSize: 36, fontFamily: 'BlackSC'),
                     ),
             ),
           ),
@@ -175,7 +175,7 @@ class _HomePageState extends State<HomePage> {
               },
               child: Text(
                 'Register',
-                style: TextStyle(fontSize: 22),
+                style: TextStyle(fontSize: 36, fontFamily: 'BlackSC'),
               ),
             ),
           ),

@@ -67,12 +67,14 @@ joinRoomDialog(BuildContext context) {
 }
 
 userProfile() {
+  String color = "0xffb8b8b8";
+
   return new Scaffold(
     appBar: new AppBar(
+      backgroundColor: Color(int.parse("0xff272744")),
       title: Text(
         'User Profile',
       ),
-      backgroundColor: Color(int.parse("0xff272744")),
     ),
     backgroundColor: Color(int.parse("0xffb8b8b8")),
     body: _UserProfileBody(),

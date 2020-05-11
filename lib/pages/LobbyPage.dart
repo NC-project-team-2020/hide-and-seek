@@ -107,6 +107,7 @@ class _LobbyPageState extends State<LobbyPage> {
           children: <Widget>[
             Text(
               'Welcome $userName',
+              textAlign: TextAlign.center,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
             ),
             Padding(
@@ -122,7 +123,7 @@ class _LobbyPageState extends State<LobbyPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Container(
-                  width: 140.0,
+                  width: 180.0,
                   height: 140.0,
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -165,7 +166,7 @@ class _LobbyPageState extends State<LobbyPage> {
                   ),
                 ),
                 Container(
-                  width: 140.0,
+                  width: 180.0,
                   height: 140.0,
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -214,6 +215,9 @@ class _LobbyPageState extends State<LobbyPage> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Color(int.parse('0xff433a60')),
+        selectedItemColor: Color(int.parse('0xff7c94a1')),
+        unselectedItemColor: Color(int.parse('0xfffbf5ef')),
         onTap: (value) {
           if (value == 1) {
             Navigator.of(context).push(new MaterialPageRoute<Null>(
