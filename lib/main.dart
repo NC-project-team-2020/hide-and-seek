@@ -42,6 +42,7 @@ class _MyAppState extends State<MyApp> {
         if (snapshot.connectionState == ConnectionState.done) {
           return MaterialApp(
             title: 'Peekaboo',
+            theme: ThemeData(fontFamily: 'RobotoCondensed'),
             initialRoute: _initialRoute,
             routes: {
               '/': (context) => LobbyPage(),
