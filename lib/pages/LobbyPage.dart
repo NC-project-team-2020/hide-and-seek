@@ -20,11 +20,14 @@ class _LobbyPageState extends State<LobbyPage> {
   String userID;
   String roomPass;
   var avatar;
+  bool setArgsFlag = true;
 
-  Future<Null> getSharedPrefs() async {
+  void getSharedPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    userName = prefs.getString("user_name");
-    userID = prefs.getString("user_id");
+    setState(() {
+      userName = prefs.getString("user_name");
+      userID = prefs.getString("user_id");
+    });
   }
 
   @override
@@ -41,7 +44,6 @@ class _LobbyPageState extends State<LobbyPage> {
 
     //Connect to the socket
     socketIO.connect();
-    getSharedPrefs();
     super.initState();
   }
 
@@ -71,6 +73,10 @@ class _LobbyPageState extends State<LobbyPage> {
       }
     }
 
+    if (setArgsFlag) {
+      setArgsFlag = false;
+      getSharedPrefs();
+    }
     String color = "0xffb8b8b8";
 
     return Scaffold(
@@ -98,7 +104,7 @@ class _LobbyPageState extends State<LobbyPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text(
-              '$userName',
+              'Welcome $userName',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
             ),
             Image(image: AssetImage('assets/logo.png')),
