@@ -101,7 +101,15 @@ class _LobbyPageState extends State<LobbyPage> {
               '$userName',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
             ),
-            Image(image: AssetImage('assets/logo.png')),
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 40,
+                top: 60,
+                right: 40,
+                bottom: 60,
+              ),
+              child: Image(image: AssetImage('assets/logo.png')),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[

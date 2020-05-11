@@ -76,7 +76,7 @@ class _RegisterState extends State<Register> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
-    String color = "0xfff2d3ab";
+    String color = "0xffb8b8b8";
 
     return new Scaffold(
       backgroundColor: Color(int.parse(color)),
