@@ -48,8 +48,12 @@ flutter:
     - assets/seeker_marker.png
     - assets/hub-logo.png
     - assets/logo.png
-
   fonts:
+    - family: RobotoCondensed
+      fonts:
+        - asset: assets/RobotoCondensed-Regular.ttf
+        - asset: assets/RobotoCondensed-Bold.ttf
+          weight: 700
     - family: Ringbearer
       fonts:
         - asset: fonts/ringbearer.ttf
