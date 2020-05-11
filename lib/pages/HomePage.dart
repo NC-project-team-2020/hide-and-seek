@@ -18,9 +18,12 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _username = TextEditingController();
   final TextEditingController _password = TextEditingController();
 
-  userCreated() {}
+  bool isLoading = false;
 
   validateAndSave() async {
+    setState(() {
+      isLoading = true;
+    });
     if (_formKey.currentState.validate()) {
       String body = convert.jsonEncode(<String, dynamic>{
         'user_name': _username.text,
@@ -41,21 +44,24 @@ class _HomePageState extends State<HomePage> {
         prefs.setString('first_name', user['first_name']);
         prefs.setString('last_name', user['last_name']);
         prefs.setStringList('avatar', avatarStrList);
+        prefs.setString('chatList', "[]");
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (BuildContext context) => LobbyPage()),
           ModalRoute.withName("/"),
         );
       } else {
+        final Map body = convert.jsonDecode(response.body);
         final failedSnackBar = SnackBar(
           backgroundColor: Colors.red[500],
-          content: Text(
-            'Invalid login',
-          ),
+          content: Text(body['msg']),
         );
         _scaffoldKey.currentState.showSnackBar(failedSnackBar);
       }
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -67,67 +73,81 @@ class _HomePageState extends State<HomePage> {
       appBar: new AppBar(
         title: Text('Peekaboo'),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(18.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Center(
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: <Widget>[
-                    TextFormField(
-                      controller: _username,
-                      decoration: const InputDecoration(
-                        labelText: 'Username',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value.isEmpty) {
-                          return 'Please enter some text';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 25.0),
-                    TextFormField(
-                      controller: _password,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Password',
-                      ),
-                      validator: (value) =>
-                          value.isEmpty ? 'The field can\'t be empty' : null,
-                    ),
-                    SizedBox(height: 15.0),
-                    SizedBox(
-                      width: double.infinity,
-                      child: RaisedButton(
-                        color: Colors.blue,
-                        onPressed: () {
-                          validateAndSave();
-                        },
-                        child: Text('Login'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 10.0),
-            SizedBox(
-              width: double.infinity,
-              child: RaisedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/register');
-                },
-                child: Text('Register Here'),
-              ),
-            ),
-          ],
+      body: Center(
+        child: Padding(
+          padding: EdgeInsets.only(left: 18.0, right: 18.0),
+          child: SingleChildScrollView(
+            child: _form(),
+          ),
         ),
+      ),
+    );
+  }
+
+  _form() {
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: <Widget>[
+          TextFormField(
+            controller: _username,
+            decoration: const InputDecoration(
+              labelText: 'Username',
+              border: OutlineInputBorder(),
+            ),
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please enter your username';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 25.0),
+          TextFormField(
+            controller: _password,
+            obscureText: true,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Password',
+            ),
+            validator: (value) =>
+                value.isEmpty ? 'Please enter your password' : null,
+          ),
+          SizedBox(height: 15.0),
+          SizedBox(
+            height: 50.0,
+            width: double.infinity,
+            child: RaisedButton(
+              color: Colors.blue,
+              onPressed: () {
+                if (isLoading) {
+                  return null;
+                }
+                validateAndSave();
+              },
+              child: isLoading
+                  ? CircularProgressIndicator(
+                      valueColor:
+                          new AlwaysStoppedAnimation<Color>(Colors.black),
+                    )
+                  : Text('Login'),
+            ),
+          ),
+          SizedBox(height: 10.0),
+          SizedBox(
+            height: 50.0,
+            width: double.infinity,
+            child: RaisedButton(
+              onPressed: () {
+                if (isLoading) {
+                  return null;
+                }
+                Navigator.pushNamed(context, '/register');
+              },
+              child: Text('Register Here'),
+            ),
+          ),
+        ],
       ),
     );
   }

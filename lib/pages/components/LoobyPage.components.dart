@@ -188,13 +188,9 @@ class __UserProfileBodyState extends State<_UserProfileBody> {
   }
 
   Future<void> getAvatar() async {
-    try {
-      preferences = await SharedPreferences.getInstance();
-      List<String> avatarStrList = preferences.getStringList('avatar');
-      List<int> avatarListInt = avatarStrList.map(int.parse).toList();
-      avatar = Uint8List.fromList(avatarListInt);
-    } catch (err) {
-      print(err);
-    }
+    preferences = await SharedPreferences.getInstance();
+    List<String> avatarStrList = preferences.getStringList('avatar');
+    List<int> avatarListInt = avatarStrList.map(int.parse).toList();
+    avatar = Uint8List.fromList(avatarListInt);
   }
 }
