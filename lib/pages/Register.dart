@@ -61,6 +61,18 @@ class _RegisterState extends State<Register> {
     return regExp.hasMatch(value);
   }
 
+  bool validateUsername(String value) {
+    String pattern = r'^(?=[a-zA-Z0-9._]{4,20}$)(?!.*[_.]{2})[^_.].*[^_.]$';
+    RegExp regExp = new RegExp(pattern);
+    return regExp.hasMatch(value);
+  }
+
+  bool validateEmail(String value) {
+    String pattern = r'^[^@]+@[^@]+\.[^@]+$';
+    RegExp regExp = new RegExp(pattern);
+    return regExp.hasMatch(value);
+  }
+
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
@@ -100,10 +112,9 @@ class _RegisterState extends State<Register> {
                 border: OutlineInputBorder(),
               ),
               validator: (value) {
-                if (value.isEmpty) {
-                  return 'Please enter some text';
-                }
-                return null;
+                return !validateUsername(value)
+                    ? 'Please enter a valid username'
+                    : null;
               },
             ),
           ),
@@ -119,10 +130,9 @@ class _RegisterState extends State<Register> {
                 border: OutlineInputBorder(),
               ),
               validator: (value) {
-                if (value.isEmpty) {
-                  return 'Please enter some text';
-                }
-                return null;
+                return !validateEmail(value)
+                    ? 'Please enter a valid email'
+                    : null;
               },
             ),
           ),
@@ -138,29 +148,26 @@ class _RegisterState extends State<Register> {
               ),
               validator: (value) {
                 if (value.isEmpty) {
-                  return 'Please enter some text';
+                  return 'Please enter your first name';
                 }
                 return null;
               },
             ),
           ),
           SizedBox(height: 25.0),
-          Container(
-            color: Color(int.parse("0xfffbf5ef")),
-            child: TextFormField(
-              readOnly: isLoading,
-              controller: _lastName,
-              decoration: const InputDecoration(
-                labelText: 'Second name',
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) {
-                if (value.isEmpty) {
-                  return 'Please enter some text';
-                }
-                return null;
-              },
+          TextFormField(
+            readOnly: isLoading,
+            controller: _lastName,
+            decoration: const InputDecoration(
+              labelText: 'Last name',
+              border: OutlineInputBorder(),
             ),
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please enter your last name';
+              }
+              return null;
+            },
           ),
           SizedBox(height: 25.0),
           Container(

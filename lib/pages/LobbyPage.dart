@@ -53,7 +53,8 @@ class _LobbyPageState extends State<LobbyPage> {
     prefs.setString('roomPass', host ? body["roomPassword"] : roomPass);
     prefs.setString('users', convert.jsonEncode(body["users"]));
     prefs.setBool('host', host);
-    Navigator.pushNamed(context, '/lobby-room', arguments: socketIO);
+    Map<String, dynamic> arguments = {'socketIO': socketIO, 'winner': null};
+    Navigator.pushNamed(context, '/lobby-room', arguments: arguments);
   }
 
   @override
@@ -66,12 +67,6 @@ class _LobbyPageState extends State<LobbyPage> {
           context,
           MaterialPageRoute(builder: (BuildContext context) => HomePage()),
           ModalRoute.withName("/register"),
-        );
-      } else if (value == 'Map') {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (BuildContext context) => MapPage()),
-          ModalRoute.withName("/in-game"),
         );
       }
     }
@@ -86,7 +81,7 @@ class _LobbyPageState extends State<LobbyPage> {
           PopupMenuButton<String>(
             onSelected: handleClick,
             itemBuilder: (BuildContext context) {
-              return {'Logout', 'Map'}.map((String choice) {
+              return {'Logout'}.map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
                   child: Text(choice),

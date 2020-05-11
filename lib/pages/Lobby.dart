@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:quiver/async.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_socket_io/flutter_socket_io.dart';
+import 'package:location/location.dart';
 import 'dart:convert' as convert;
 
 class Lobby extends StatefulWidget {
@@ -12,26 +13,38 @@ class Lobby extends StatefulWidget {
 }
 
 class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   var _players;
   int hideTime;
   int seekTime;
   int radiusMeterage;
   String elapsedTime = '';
   String selectedHider;
+  String winner = null;
   bool host = false;
   bool startStop = false;
   String userName;
   String userID;
   String roomPass;
   SocketIO socketIO;
+  var radiusLat;
+  var radiusLon;
+  bool setArgsFlag = true;
 
-  Future<Null> getSharedPrefs() async {
+  Future<void> getSharedPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userName = prefs.getString("user_name");
     userID = prefs.getString("user_id");
     roomPass = prefs.getString("roomPass");
     host = prefs.getBool("host");
     _players = convert.jsonDecode(prefs.getString("users"));
+
+    if (host) {
+      Location _locationTracker = Location();
+      var location = await _locationTracker.getLocation();
+      radiusLat = location.latitude;
+      radiusLon = location.longitude;
+    }
   }
 
   void _handleUpdate(dynamic data) async {
@@ -44,29 +57,46 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     print("Socket info: " + data);
   }
 
-  void launchGame(dynamic data) async {
+  void launchGame(dynamic data) {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
       final Map body = convert.jsonDecode(data);
-      prefs.setString('hideTime', body["hideTime"]);
-      prefs.setString('hiderID', selectedHider);
-      prefs.setInt('radiusMeterage', radiusMeterage);
-      Navigator.pushNamed(context, '/in-game', arguments: socketIO);
+      Map<String, dynamic> arguments = {
+        'socketIO': socketIO,
+        "seekTime": seekTime,
+        "hideTime": body["hideTime"],
+        "radiusMeterage": body["radiusMetres"],
+        "radiusLat": body["latitude"],
+        "radiusLon": body["longitude"],
+        "selectedHider": selectedHider
+      };
+      Navigator.pushNamed(context, '/in-game', arguments: arguments);
     } catch (err) {
       print(err);
     }
   }
 
+  setArgs(args) {
+    setState(() {
+      socketIO = args["socketIO"];
+      socketIO.subscribe("usersUpdate", _handleUpdate);
+      socketIO.subscribe("startGame", launchGame);
+      winner = args["winner"];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    socketIO = ModalRoute.of(context).settings.arguments;
-    socketIO.subscribe("usersUpdate", _handleUpdate);
-    socketIO.subscribe("startGame", launchGame);
+    if (setArgsFlag) {
+      setArgsFlag = false;
+      setArgs(ModalRoute.of(context).settings.arguments);
+    }
 
     return FutureBuilder(
-        future: getSharedPrefs(),
-        builder: (context, snapshot) {
+      future: getSharedPrefs(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
           return new Scaffold(
+            key: _scaffoldKey,
             appBar: new AppBar(
               title: Text('Lobby'),
               actions: <Widget>[
@@ -100,14 +130,22 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: ListTile(
-                              title: Text(
-                                playerIndex == selectedHider
-                                    ? "$userName is the hider"
-                                    : userName,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 30.0,
+                              title: RichText(
+                                text: TextSpan(
+                                  style: Theme.of(context).textTheme.body1,
+                                  children: [
+                                    winner == userName
+                                        ? WidgetSpan(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 2.0),
+                                              child: Icon(Icons.stars),
+                                            ),
+                                          )
+                                        : TextSpan(text: ' '),
+                                    TextSpan(text: userName),
+                                  ],
                                 ),
                               ),
                               onTap: () {
@@ -120,10 +158,23 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                     ? SizedBox(
                         height: 80.0,
                         child: RaisedButton(
-                          onPressed: () => startStop
-                              ? null
-                              : socketIO.sendMessage("startGame",
-                                  '{ "hideTime": "$hideTime", "roomPass": "$roomPass"}'),
+                          onPressed: () {
+                            if (hideTime == null ||
+                                seekTime == null ||
+                                radiusMeterage == null ||
+                                selectedHider == null) {
+                              final failedSnackBar = SnackBar(
+                                backgroundColor: Colors.red[500],
+                                content: Text(
+                                    'Fill in the game settings (needs better wording here...'),
+                              );
+                              _scaffoldKey.currentState
+                                  .showSnackBar(failedSnackBar);
+                              return null;
+                            }
+                            socketIO.sendMessage("startGame",
+                                '{ "hideTime": "$hideTime", "roomPass": "$roomPass", "latitude": "$radiusLat", "longitude": "$radiusLon", "radiusMetres": "$radiusMeterage" }');
+                          },
                           child: Text(
                             "Go Hide",
                             textAlign: TextAlign.center,
@@ -164,7 +215,10 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                   )
                 : null,
           );
-        });
+        }
+        return CircularProgressIndicator();
+      },
+    );
   }
 
   transformSeconds(int seconds) {
@@ -197,9 +251,9 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
   }
 
   settingsSelect() {
-    TextEditingController _c = new TextEditingController();
-    TextEditingController _g = new TextEditingController();
-    TextEditingController _radius = new TextEditingController();
+    TextEditingController _c = new TextEditingController(text: '1');
+    TextEditingController _g = new TextEditingController(text: '10');
+    TextEditingController _radius = new TextEditingController(text: '300');
     String hiderSelected = selectedHider;
     return StatefulBuilder(
         builder: (BuildContext context, StateSetter setLocalState) {
