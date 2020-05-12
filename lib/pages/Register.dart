@@ -96,6 +96,16 @@ class _RegisterState extends State<Register> {
     );
   }
 
+  formFieldDecoration(inputName) {
+    return InputDecoration(
+      fillColor: Color(int.parse("0xfffbf5ef")),
+      filled: true,
+      labelText: inputName,
+      errorStyle: TextStyle(fontWeight: FontWeight.bold),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0)),
+    );
+  }
+
   _form() {
     return Form(
       key: _formKey,
@@ -103,17 +113,10 @@ class _RegisterState extends State<Register> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: Color(int.parse("0xfffbf5ef")),
-            ),
             child: TextFormField(
               readOnly: isLoading,
               controller: _username,
-              decoration: const InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(),
-              ),
+              decoration: formFieldDecoration('Username'),
               validator: (value) {
                 return !validateUsername(value)
                     ? 'Please enter a valid username'
@@ -123,18 +126,11 @@ class _RegisterState extends State<Register> {
           ),
           SizedBox(height: 25.0),
           Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: Color(int.parse("0xfffbf5ef")),
-            ),
             child: TextFormField(
               readOnly: isLoading,
               controller: _email,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
+              decoration: formFieldDecoration("Email"),
               validator: (value) {
                 return !validateEmail(value)
                     ? 'Please enter a valid email'
@@ -144,17 +140,10 @@ class _RegisterState extends State<Register> {
           ),
           SizedBox(height: 25.0),
           Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: Color(int.parse("0xfffbf5ef")),
-            ),
             child: TextFormField(
               readOnly: isLoading,
               controller: _firstName,
-              decoration: const InputDecoration(
-                labelText: 'First name',
-                border: OutlineInputBorder(),
-              ),
+              decoration: formFieldDecoration("First name"),
               validator: (value) {
                 if (value.isEmpty) {
                   return 'Please enter your first name';
@@ -165,17 +154,10 @@ class _RegisterState extends State<Register> {
           ),
           SizedBox(height: 25.0),
           Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: Color(int.parse("0xfffbf5ef")),
-            ),
             child: TextFormField(
               readOnly: isLoading,
               controller: _lastName,
-              decoration: const InputDecoration(
-                labelText: 'Last name',
-                border: OutlineInputBorder(),
-              ),
+              decoration: formFieldDecoration("Last name"),
               validator: (value) {
                 if (value.isEmpty) {
                   return 'Please enter your last name';
@@ -186,18 +168,11 @@ class _RegisterState extends State<Register> {
           ),
           SizedBox(height: 25.0),
           Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: Color(int.parse("0xfffbf5ef")),
-            ),
             child: TextFormField(
                 readOnly: isLoading,
                 controller: _password,
                 obscureText: true,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Password',
-                ),
+                decoration: formFieldDecoration("Password"),
                 validator: (value) {
                   return !validatePassword(value)
                       ? 'The password is not strong enough'
@@ -206,18 +181,11 @@ class _RegisterState extends State<Register> {
           ),
           SizedBox(height: 25.0),
           Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: Color(int.parse("0xfffbf5ef")),
-            ),
             child: TextFormField(
               readOnly: isLoading,
               controller: _repeatPassword,
               obscureText: true,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Repeat password',
-              ),
+              decoration: formFieldDecoration("Repeat password"),
               validator: (value) => _password.text != _repeatPassword.text
                   ? 'The passwords are not matching'
                   : null,

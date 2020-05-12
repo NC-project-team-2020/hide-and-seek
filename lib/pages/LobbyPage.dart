@@ -49,8 +49,6 @@ class _LobbyPageState extends State<LobbyPage> {
   }
 
   _handleRoom(dynamic data, bool host) async {
-    print("Socket info: " + data);
-    print(socketIO);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final Map body = convert.jsonDecode(data);
     prefs.setString('roomPass', host ? body["roomPassword"] : roomPass);
@@ -136,7 +134,6 @@ class _LobbyPageState extends State<LobbyPage> {
                               String jsonData =
                                   '{"user_name":"$userName","user_id":"$userID", "room":"$roomName"}';
                               socketIO.sendMessage("createRoom", jsonData);
-                              print(roomName);
                             } else {
                               final failedSnackBar = SnackBar(
                                 backgroundColor: Colors.red[500],
@@ -179,7 +176,6 @@ class _LobbyPageState extends State<LobbyPage> {
                             });
                             if (roomID.toString().length > 0 &&
                                 roomID != null) {
-                              print(roomID);
                               String jsonData =
                                   '{"user_name":"$userName","user_id":"$userID", "roomPass":"$roomID"}';
                               socketIO.sendMessage("joinRoom", jsonData);
