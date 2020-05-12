@@ -71,15 +71,25 @@ class _HomePageState extends State<HomePage> {
     return new Scaffold(
       backgroundColor: Color(int.parse(color)),
       key: _scaffoldKey,
-      appBar: new AppBar(
-        backgroundColor: Color(int.parse("0xff272744")),
-        title: Text('Hubert'),
-      ),
       body: Center(
-        child: Padding(
-          padding: EdgeInsets.only(left: 18.0, right: 18.0),
-          child: SingleChildScrollView(
-            child: _form(),
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(top: 30.0),
+                child: Text(
+                  'Hubert',
+                  style: TextStyle(
+                      fontFamily: 'Arvo',
+                      fontSize: 90,
+                      color: Color(int.parse('0xff272744'))),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 18.0, right: 18.0),
+                child: _form(),
+              ),
+            ],
           ),
         ),
       ),
