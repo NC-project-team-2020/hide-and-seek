@@ -432,6 +432,9 @@ class _MapPageState extends State<MapPage> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Color(int.parse('0xff433a60')),
+        selectedItemColor: Color(int.parse('0xff7c94a1')),
+        unselectedItemColor: Color(int.parse('0xfffbf5ef')),
         onTap: (value) {
           if (value == 0) {
             _chatCounterValue(context);

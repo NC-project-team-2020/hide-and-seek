@@ -3,6 +3,7 @@ import 'package:flutter_socket_io/flutter_socket_io.dart';
 import 'package:hideandseek/pages/components/chat/chatHistory.component.dart';
 import 'dart:convert' as convert;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 class Chat extends StatefulWidget {
   SocketIO socketIO;
@@ -66,9 +67,9 @@ class _ChatState extends State<Chat> {
     chatList = convert.jsonDecode(chatListStr);
     setState(() {
       chatList.add({
-        'msg': convert.jsonEncode(msg["msg"]),
-        'written_by': convert.jsonEncode(msg["user_name"]),
-        'created_at': convert.jsonEncode(msg["date"])
+        'msg': msg["msg"],
+        'written_by': msg["user_name"],
+        'created_at': msg["date"]
       });
       _countOfUnreadMessages = _countOfUnreadMessages + 1;
     });
@@ -87,7 +88,8 @@ class _ChatState extends State<Chat> {
           chatList.add({
             'msg': _message.text,
             'written_by': user_name,
-            'created_at': new DateTime.now().toString()
+            'created_at':
+                new DateFormat("dd/MM/yyyy HH:mm:ss").format(new DateTime.now())
           });
         });
         chatListStr = convert.jsonEncode(chatList);
@@ -114,6 +116,7 @@ class _ChatState extends State<Chat> {
       future: getMessages(),
       builder: (context, snapshot) {
         return Scaffold(
+          backgroundColor: Color(int.parse("0xffb8b8b8")),
           body: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -137,11 +140,14 @@ class _ChatState extends State<Chat> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: RaisedButton(
-                            color: Colors.blue[200],
+                            color: Color(int.parse("0xff272744")),
                             onPressed: () {
                               sendMessage();
                             },
-                            child: Icon(Icons.send)),
+                            child: Icon(
+                              Icons.send,
+                              color: Colors.white,
+                            )),
                       ),
                     ),
                     Expanded(
@@ -149,7 +155,7 @@ class _ChatState extends State<Chat> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: RaisedButton(
-                          color: Colors.blue[200],
+                          color: Color(int.parse("0xff272744")),
                           onPressed: () {
                             if (user_name != hider) {
                               unreadMessageCounter(context);
@@ -157,7 +163,10 @@ class _ChatState extends State<Chat> {
                               Navigator.pop(context);
                           },
                           // add functionality here to say in user != user then run unread messagecounter
-                          child: Icon(Icons.close),
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),

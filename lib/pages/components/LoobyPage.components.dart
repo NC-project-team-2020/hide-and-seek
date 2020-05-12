@@ -67,8 +67,6 @@ joinRoomDialog(BuildContext context) {
 }
 
 userProfile() {
-  String color = "0xffb8b8b8";
-
   return new Scaffold(
     appBar: new AppBar(
       backgroundColor: Color(int.parse("0xff272744")),
@@ -95,8 +93,6 @@ class __UserProfileBodyState extends State<_UserProfileBody> {
   String userName;
   @override
   Widget build(BuildContext context) {
-    String color = "0xffb8b8b8";
-
     return FutureBuilder(
       future: getAvatar(),
       builder: (context, snapshot) {
