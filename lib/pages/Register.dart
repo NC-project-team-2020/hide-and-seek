@@ -36,7 +36,6 @@ class _RegisterState extends State<Register> {
       });
       http.Response res = await userReq('register', body);
       if (res.statusCode == 201) {
-        print('success');
         Navigator.pushNamed(context, '/login');
       } else {
         Map<String, dynamic> body = convert.jsonDecode(res.body);

@@ -57,6 +57,7 @@ class _MapPageState extends State<MapPage> {
   String confirmFindMsg;
   bool showConfirmPopup;
   bool waitingForRes = false;
+  bool distanceWarning = false;
 
   Future<void> setHidingPoint(dynamic data) async {
     _startTimer.cancel();
@@ -144,6 +145,19 @@ class _MapPageState extends State<MapPage> {
     setState(() {
       showFindButton = boolean;
     });
+  }
+
+  setDistanceWarning(bool boolean) {
+    setState(() {
+      distanceWarning = boolean;
+    });
+  }
+
+  bool showDistanceWarning() {
+    if (distanceWarning && turn == "seek" && selectedHider != userName) {
+      return true;
+    }
+    return false;
   }
 
   @override
@@ -323,7 +337,8 @@ class _MapPageState extends State<MapPage> {
               selectedHider: selectedHider,
               setShowFindButton: setShowFindButton,
               socketIO: socketIO,
-              roomPass: roomPass),
+              roomPass: roomPass,
+              setDistanceWarning: setDistanceWarning),
           Align(
             alignment: Alignment.topCenter,
             child: Padding(
@@ -403,6 +418,17 @@ class _MapPageState extends State<MapPage> {
               ),
             ),
           ),
+          showDistanceWarning()
+              ? Container(
+                  color: Colors.red.withOpacity(0.2),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text('Get Back In The Allowed Area!',
+                        style: TextStyle(
+                            fontSize: 20.0, fontWeight: FontWeight.bold)),
+                  ),
+                )
+              : Container(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

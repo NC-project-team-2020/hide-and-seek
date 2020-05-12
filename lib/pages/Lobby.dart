@@ -55,7 +55,6 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
     setState(() {
       _players = body["users"];
     });
-    print("Socket info: " + data);
   }
 
   void launchGame(dynamic data) {
@@ -322,7 +321,6 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
 
   void handleClick(String value) async {
     if (value == 'Leave lobby') {
-      print('leaving the lobby');
       socketIO.sendMessage("leaveRoom", null);
       Navigator.pushNamed(context, '/');
     }

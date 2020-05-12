@@ -21,7 +21,8 @@ class InGameMap extends StatefulWidget {
       this.selectedHider,
       this.setShowFindButton,
       this.socketIO,
-      this.roomPass})
+      this.roomPass,
+      this.setDistanceWarning})
       : super(key: key);
 
   final bool followWithCamera;
@@ -32,6 +33,7 @@ class InGameMap extends StatefulWidget {
   final String userID;
   final String selectedHider;
   final Function setShowFindButton;
+  final Function setDistanceWarning;
   final SocketIO socketIO;
   final String roomPass;
   @override
@@ -127,6 +129,11 @@ class _InGameMapState extends State<InGameMap> {
               widget.setShowFindButton(true);
             } else {
               widget.setShowFindButton(false);
+            }
+            if (distanceInMeters > 300) {
+              widget.setDistanceWarning(true);
+            } else {
+              widget.setDistanceWarning(false);
             }
           }
         }
