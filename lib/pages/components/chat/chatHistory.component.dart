@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:hideandseek/pages/components/chat/chatCard.dart';
 
 chatHistory(List chatHistory, user_name) {
-  print('this is chat');
   return ListView.builder(
     itemCount: chatHistory.length,
     itemBuilder: (context, index) {
       final chat = chatHistory[index];
-      print(chat);
       return Row(
         children: <Widget>[
           Expanded(

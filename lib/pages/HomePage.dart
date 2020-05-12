@@ -68,8 +68,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     String color = "0xffb8b8b8";
-
-    print(_password);
     return new Scaffold(
       backgroundColor: Color(int.parse(color)),
       key: _scaffoldKey,
@@ -98,6 +96,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  formFieldDecoration(inputName) {
+    return InputDecoration(
+      fillColor: Color(int.parse("0xfffbf5ef")),
+      filled: true,
+      labelText: inputName,
+      errorStyle: TextStyle(fontWeight: FontWeight.bold),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0)),
+    );
+  }
+
   _form() {
     return Form(
       key: _formKey,
@@ -113,16 +121,9 @@ class _HomePageState extends State<HomePage> {
             child: Image(image: AssetImage('assets/logo.png')),
           ),
           Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: Color(int.parse("0xfffbf5ef")),
-            ),
             child: TextFormField(
               controller: _username,
-              decoration: const InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(),
-              ),
+              decoration: formFieldDecoration("Username"),
               validator: (value) {
                 if (value.isEmpty) {
                   return 'Please enter your username';
@@ -133,17 +134,10 @@ class _HomePageState extends State<HomePage> {
           ),
           SizedBox(height: 25.0),
           Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: Color(int.parse("0xfffbf5ef")),
-            ),
             child: TextFormField(
               controller: _password,
               obscureText: true,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Password',
-              ),
+              decoration: formFieldDecoration("Password"),
               validator: (value) =>
                   value.isEmpty ? 'Please enter your password' : null,
             ),

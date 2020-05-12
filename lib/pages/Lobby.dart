@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hideandseek/pages/components/Lobby.components.dart';
 import 'package:quiver/async.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_socket_io/flutter_socket_io.dart';
@@ -119,10 +120,17 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.only(
-                        top: 40.0, left: 8.0, right: 8.0, bottom: 25.0),
+                        top: 35.0, left: 8.0, right: 8.0, bottom: 20.0),
                     child: Text('Room Password: $roomPass',
-                        style: TextStyle(fontSize: 25.0),
+                        style: TextStyle(
+                            fontSize: 25.0, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center),
+                  ),
+                  Text(
+                    'Players:',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0),
+                    textAlign: TextAlign.center,
                   ),
                   SizedBox(
                     width: 150,
@@ -132,30 +140,38 @@ class _LobbyState extends State<Lobby> with SingleTickerProviderStateMixin {
                         itemBuilder: (context, index) {
                           final playerIndex = _players[index];
                           final userName = playerIndex['user_name'];
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ListTile(
-                                title: RichText(
-                                  text: TextSpan(
-                                    style: Theme.of(context).textTheme.body1,
-                                    children: [
-                                      winner == userName
-                                          ? WidgetSpan(
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 2.0),
-                                                child: Icon(Icons.stars),
-                                              ),
-                                            )
-                                          : TextSpan(text: ' '),
-                                      TextSpan(text: userName),
-                                    ],
+                          return Center(
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 20.0, left: 20.0, right: 20.0),
+                              child: ListTile(
+                                  title: RichText(
+                                    text: TextSpan(
+                                      style: Theme.of(context).textTheme.body1,
+                                      children: [
+                                        winner == userName
+                                            ? WidgetSpan(
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      horizontal: 2.0),
+                                                  child: Icon(
+                                                    Icons.stars,
+                                                    color: Colors.yellow[700],
+                                                  ),
+                                                ),
+                                              )
+                                            : TextSpan(text: ' '),
+                                        TextSpan(
+                                            text: userName,
+                                            style: TextStyle(fontSize: 25.0)),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                onTap: () {
-                                  _showcontent(context);
-                                }),
+                                  onTap: () {
+                                    _showcontent(context);
+                                  }),
+                            ),
                           );
                         }),
                   ),

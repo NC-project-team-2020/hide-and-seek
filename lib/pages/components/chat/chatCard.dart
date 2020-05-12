@@ -6,7 +6,9 @@ card(chat, bool myself) {
       children: <Widget>[
         Container(
           decoration: BoxDecoration(
-              color: myself ? Colors.blue[200] : Colors.white,
+              color: myself
+                  ? Color(int.parse("0xff272744"))
+                  : Color(int.parse("0xfff2d3ab")),
               boxShadow: [
                 BoxShadow(
                     blurRadius: .5,
@@ -16,22 +18,38 @@ card(chat, bool myself) {
               borderRadius: myself
                   ? BorderRadius.only(
                       topLeft: Radius.circular(5.0),
-                      bottomLeft: Radius.circular(5.0),
-                      bottomRight: Radius.circular(10.0))
-                  : BorderRadius.only(
                       topRight: Radius.circular(5.0),
-                      bottomLeft: Radius.circular(10.0),
-                      bottomRight: Radius.circular(5.0),
-                    )),
-          child: Row(
+                      bottomLeft: Radius.circular(5.0),
+                      bottomRight: Radius.circular(5.0))
+                  : BorderRadius.only(
+                      topLeft: Radius.circular(5.0),
+                      topRight: Radius.circular(5.0),
+                      bottomLeft: Radius.circular(5.0),
+                      bottomRight: Radius.circular(5.0))),
+          child: Column(
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Text(chat['msg']),
-              ),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text(chat['written_by'],
+                        style: TextStyle(
+                            color: myself ? Colors.white : Colors.black))),
+                Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text(chat['created_at'],
+                        style: TextStyle(
+                            color: myself ? Colors.white : Colors.black)))
+              ]),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text(chat['msg'],
+                        style: TextStyle(
+                            color: myself ? Colors.white : Colors.black))),
+              ])
             ],
           ),
-        ),
+        )
       ],
     ),
   );

@@ -6,7 +6,6 @@ clueHistory(List clueHistory, user_name) {
     itemCount: clueHistory.length,
     itemBuilder: (context, index) {
       final clue = clueHistory[index];
-      print(clue);
       return Row(
         children: <Widget>[
           Expanded(

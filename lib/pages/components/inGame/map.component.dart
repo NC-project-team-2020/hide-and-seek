@@ -82,8 +82,6 @@ class _InGameMapState extends State<InGameMap> {
   void getCurrentLocation() async {
     try {
       var location = await _locationTracker.getLocation();
-      print("widget.radiusMeterage");
-      print(widget.radiusMeterage);
 
       Uint8List hiderImage =
           await getBytesFromAsset('assets/hider_marker.png', 100);
@@ -125,7 +123,6 @@ class _InGameMapState extends State<InGameMap> {
             double hidingLon = widget.hidingPoint.longitude;
             distanceInMeters = await Geolocator()
                 .distanceBetween(curLat, curLon, hidingLat, hidingLon);
-            print(distanceInMeters);
             if (distanceInMeters < 20) {
               widget.setShowFindButton(true);
             } else {
